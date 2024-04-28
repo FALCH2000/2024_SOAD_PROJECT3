@@ -1,0 +1,19 @@
+{
+    "userid": "id",
+    "hora_inicio": "hora",
+    "hora_fin": "hora",
+    "fecha": "fecha",
+    "cantidad_personas": "cantidad",
+    "mesas_asignadas":[
+        {
+            "id": "id",
+            "cantidad_personas": "cantidad",
+            "mesa": "mesa"
+        },
+        {
+            "id": "id",
+            "cantidad_personas": "cantidad",
+            "mesa": "mesa"
+        }
+    ]
+}
