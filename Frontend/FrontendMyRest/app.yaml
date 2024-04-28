@@ -1,0 +1,8 @@
+runtime: python39
+
+handlers:
+  - url: /
+    static_files: dist/frontend-my-rest/index.html
+    upload: dist/frontend-my-rest/index.html
+  - url: /
+    static_dir: dist/frontend-my-rest
