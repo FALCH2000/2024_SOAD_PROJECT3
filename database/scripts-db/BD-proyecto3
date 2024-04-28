@@ -1,0 +1,68 @@
+-Comida
+--ID pk
+--Nombre
+
+-TipoComida
+--ID pk
+--Nombre
+
+-Asociacion_Tipo_Comida
+--IDtipo pk, fk
+--IDcomida pk, fk
+
+Esto sirve porque asi es mas facil la logica en el backend Y EVITA EL ERROR DE DAR UNA RECOMENDACION CON UN INPUT SIN SENTIDO
+Esta tabla solo serviria si queremos que las recomendaciones tengan sentido gastronomico
+(documentar en wiki: si se quisiera STORE PROCEDURE PARA GUARDAR, TRIGGER PARA EVITAR INSERCIONES para hacer un sist. dinamico de recomendaciones y //agregar nuevas)
+-private Recomendacion
+--IDrecomendacion pk
+--IDPlatoPrincipal fk
+--IDBebida fk
+--IDPostre fk
+
+-ReservaAsociadas
+-IDreserva pk,fk
+-IDmesa    pk,fk
+
+-Reservas
+--IDreserva pk
+--IDusuario pk, fk
+--CantidadPersonas
+
+TRIGGER PARA QUE NO SE PASE DE 2H   (poner en la wiki que si se quisiera escalar a mas horas, se cambia el trigger)
+-DisponibilidadMesas (Calendario)
+--IDMesa pk,fk
+--Fecha  pk
+--HoraInicio pk
+--HoraFin (horaInicio + 2h) pk
+--Disponibilidad bool
+
+-Mesas
+--NumMesa
+--Sillas int
+
+-Usuario
+--NombreUsuario pk
+--ContrasenaCifrada
+--Nombre
+--Apellido1
+--Apellido2
+--PreguntaSeguridad
+--RespuestaSeguridad (1 palabra, en minuscula, cifrada)
+
+-UsuariosAutenticados
+--NombreUsuario pk, fk
+--EstaAutenticado bool
+
+-TipodeUsuario
+--ID pk
+--NombreTipo
+
+-Asociacion_Tipo_Usuario
+--IDusuario pk, fk
+--IDtipo pk, fk
+
+-DatosRestaurante  (si se quiere escalar a mas sucursales, se deben hacer tablas de asociacion con las reservas,mesas,DisponibilidadMesas, )
+--IDsucursal pk
+--HoraApertura
+--HoraCierre
+--Ubicacion
