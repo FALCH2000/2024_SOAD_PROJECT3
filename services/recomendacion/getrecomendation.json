@@ -1,0 +1,10 @@
+{
+    "plato1": {
+        "id": "1",
+        "name": "Comida"
+    },
+    "plato2":{
+        "id": "2",
+        "name": "Bebida"
+    }
+}
