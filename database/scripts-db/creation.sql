@@ -36,6 +36,9 @@ CREATE TABLE Reservations (
     Number_Of_People INT
 );
 
+-- This table is used to store the availability of tables in the restaurant
+-- The time is stored in 24-hour format
+-- It shows instances of when a table is reserved
 CREATE TABLE Table_Availability (
     Table_ID INT,
     Date_Reserved DATE,
@@ -49,7 +52,7 @@ CREATE TABLE Tables (
     Chairs INT
 );
 
-CREATE TABLE User (
+CREATE TABLE User_ (
     Username NVARCHAR(50) PRIMARY KEY,
     Encrypted_Password NVARCHAR(50),
     First_Name NVARCHAR(50),
@@ -116,12 +119,12 @@ REFERENCES Tables(Table_Number);
 ALTER TABLE Reservations
 ADD CONSTRAINT FK_Reservations_User
 FOREIGN KEY (User_ID) 
-REFERENCES [User](Username);
+REFERENCES User_(Username);
 
 ALTER TABLE User_Type_Association
 ADD CONSTRAINT FK_User_Type_Association_User
 FOREIGN KEY (Username) 
-REFERENCES [User](Username);
+REFERENCES User_(Username);
 
 ALTER TABLE User_Type_Association
 ADD CONSTRAINT FK_User_Type_Association_User_Type
