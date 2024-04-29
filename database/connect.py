@@ -1,56 +1,41 @@
-import os
-
-from google.cloud.sql.connector import Connector, IPTypes
-import pytds
+# Description: This file is used to connect to the SQL SERVER database in 
+# a Google Cloud SQL SERVER instance. Just call the function connect_to_db()
+# to get a connection to the database. The function test() is used to test the
+# connection to the database.
 
 import sqlalchemy
+from google.cloud.sql.connector import Connector
 
-def connect_with_connector() -> sqlalchemy.engine.base.Engine:
-    """
-    Initializes a connection pool for a Cloud SQL instance of SQL Server.
+# Obtains all data from database
+def getconn():
+    connector = Connector()
+    conn = connector.connect(
+        "groovy-rope-416616:us-central1:database-project3",
+        "pytds",
+        user="sqlserver",
+        password="4321",
+        db="restaurant-db"
+    )
+    return conn
 
-    Uses the Cloud SQL Python Connector package.
-    """
-    # Note: Saving credentials in environment variables is convenient, but not
-    # secure - consider a more secure solution such as
-    # Cloud Secret Manager (https://cloud.google.com/secret-manager) to help
-    # keep secrets safe.
-
-    instance_connection_name = os.environ[
-        "INSTANCE_CONNECTION_NAME"
-    ]  # e.g. 'project:region:instance'
-    db_user = os.environ.get("DB_USER", "")  # e.g. 'my-db-user'
-    db_pass = os.environ["DB_PASS"]  # e.g. 'my-db-password'
-    db_name = os.environ["DB_NAME"]  # e.g. 'my-database'
-
-    ip_type = IPTypes.PRIVATE if os.environ.get("PRIVATE_IP") else IPTypes.PUBLIC
-
-    connector = Connector(ip_type)
-
-    connect_args = {}
-    # If your SQL Server instance requires SSL, you need to download the CA
-    # certificate for your instance and include cafile={path to downloaded
-    # certificate} and validate_host=False. This is a workaround for a known issue.
-    if os.environ.get("DB_ROOT_CERT"):  # e.g. '/path/to/my/server-ca.pem'
-        connect_args = {
-            "cafile": os.environ["DB_ROOT_CERT"],
-            "validate_host": False,
-        }
-
-    def getconn() -> pytds.Connection:
-        conn = connector.connect(
-            instance_connection_name,
-            "pytds",
-            user=db_user,
-            password=db_pass,
-            db=db_name,
-            **connect_args
-        )
-        return conn
-
+# Creates a connection pool to the database
+def get_engine():
     pool = sqlalchemy.create_engine(
         "mssql+pytds://",
         creator=getconn,
-        # ...
     )
     return pool
+
+# General function to connect to database
+def connect_to_db():
+    return get_engine().connect()
+
+# Test function to test connection to database
+def test():
+    conn = connect_to_db()
+    result = conn.execute("SELECT * FROM Food_Type")
+    for row in result:
+        print(row)
+    conn.close()
+
+test()
