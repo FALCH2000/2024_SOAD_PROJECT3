@@ -20,25 +20,26 @@ CREATE TABLE Food_Type_Association (
 CREATE TABLE Recommendation (
     ID INT IDENTITY(1,1) PRIMARY KEY,
     Main_Dish_ID INT,
-    Beverage_ID INT,
+    Drink_ID INT,
     Dessert_ID INT
 );
 
-CREATE TABLE Associated_Reservations (
-    Reservation_ID INT,
-    Table_ID INT,
-    PRIMARY KEY (Reservation_ID, Table_ID)
+CREATE TABLE Tables (
+    Table_Number INT PRIMARY KEY,
+    Chairs INT
 );
 
+-- Calendar table 
 CREATE TABLE Reservations (
     Reservation_ID INT IDENTITY(1,1) PRIMARY KEY,
     User_ID NVARCHAR(50),
-    Number_Of_People INT
+    Number_Of_People INT,
+    Date_Reserved DATE,
+    Start_Time TIME,
+    End_Time TIME,
 );
 
--- This table is used to store the availability of tables in the restaurant
--- The time is stored in 24-hour format
--- It shows instances of when a table is reserved
+-- Shows the availability of each table
 CREATE TABLE Table_Availability (
     Table_ID INT,
     Date_Reserved DATE,
@@ -47,9 +48,11 @@ CREATE TABLE Table_Availability (
     PRIMARY KEY (Table_ID, Date_Reserved, Start_Time, End_Time)
 );
 
-CREATE TABLE Tables (
-    Table_Number INT PRIMARY KEY,
-    Chairs INT
+-- Shows which tables are used for each reservation
+CREATE TABLE Reservation_Tables_Association (
+    Reservation_ID INT,
+    Table_ID INT,
+    PRIMARY KEY (Reservation_ID, Table_ID)
 );
 
 CREATE TABLE User_ (
@@ -97,8 +100,8 @@ FOREIGN KEY (Main_Dish_ID)
 REFERENCES Food(ID);
 
 ALTER TABLE Recommendation
-ADD CONSTRAINT FK_Recommendation_Beverage
-FOREIGN KEY (Beverage_ID) 
+ADD CONSTRAINT FK_Recommendation_Drink
+FOREIGN KEY (Drink_ID) 
 REFERENCES Food(ID);
 
 ALTER TABLE Recommendation
@@ -106,20 +109,25 @@ ADD CONSTRAINT FK_Recommendation_Dessert
 FOREIGN KEY (Dessert_ID) 
 REFERENCES Food(ID);
 
-ALTER TABLE Associated_Reservations
-ADD CONSTRAINT FK_Associated_Reservations_Reservation
-FOREIGN KEY (Reservation_ID) 
-REFERENCES Reservations(Reservation_ID);
-
-ALTER TABLE Associated_Reservations
-ADD CONSTRAINT FK_Associated_Reservations_Table
-FOREIGN KEY (Table_ID) 
-REFERENCES Tables(Table_Number);
-
 ALTER TABLE Reservations
 ADD CONSTRAINT FK_Reservations_User
 FOREIGN KEY (User_ID) 
 REFERENCES User_(Username);
+
+ALTER TABLE Table_Availability
+ADD CONSTRAINT FK_Table_Availability_Tables
+FOREIGN KEY (Table_ID)
+REFERENCES Tables(Table_Number);
+
+ALTER TABLE Reservation_Tables_Association
+ADD CONSTRAINT FK_Reservation_Tables_Association_Reservation
+FOREIGN KEY (Reservation_ID)
+REFERENCES Reservations(Reservation_ID);
+
+ALTER TABLE Reservation_Tables_Association
+ADD CONSTRAINT FK_Reservation_Tables_Association_Table
+FOREIGN KEY (Table_ID)
+REFERENCES Tables(Table_Number);
 
 ALTER TABLE User_Type_Association
 ADD CONSTRAINT FK_User_Type_Association_User
