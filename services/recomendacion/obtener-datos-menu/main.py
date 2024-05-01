@@ -99,5 +99,3 @@ def obtener_menu(event, context):
 
     # Mantener la función en ejecución
     future.result()
-
-obtener_menu(None, None)
