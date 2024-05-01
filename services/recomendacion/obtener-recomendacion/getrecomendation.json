@@ -1,10 +1,13 @@
 {
-    "plato1": {
-        "id": "1",
-        "name": "Comida"
-    },
-    "plato2":{
-        "id": "2",
-        "name": "Bebida"
+    "data":{
+        "method":"obtener-recomendacion",
+        "dish1": {
+            "ID": "1",
+            "Name": "Pizza Margarita"
+        },
+        "dish2":{
+            "ID": "2",
+            "Name": "Tiramisu"
+        }
     }
 }
