@@ -64,6 +64,8 @@ def obtener_menu_callback(message):
 
     if request["data"] == "obtener-menu":
         conn = get_engine().connect()
+        # query = usar_bd("SELECT * FROM Food_Type;")
+        # 
         query = "SELECT f.Name AS Food_Name, ft.Name AS Food_Type \
             FROM Food f \
             INNER JOIN Food_Type_Association fta ON f.ID = fta.Food_ID \
