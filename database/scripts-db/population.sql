@@ -63,6 +63,11 @@ SELECT @DrinkID, ID FROM Food WHERE Name IN (
     'Negroni'
 );
 
+-- Insertar asociaciones faltantes
+INSERT INTO Food_Type_Association (Type_ID, Food_ID)
+VALUES (1, 20);
+
+
 -- Insertar tipos de usuarios
 INSERT INTO User_Type (Type_Name)
 VALUES ('Admin'), ('Client');

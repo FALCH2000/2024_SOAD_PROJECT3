@@ -39,6 +39,6 @@ tema admin
 - ampliar-disponibilidad-reservas: filtro attributes.type = "ampliar-disponibilidad-reservas"
 - ampliar-disponibilidad-reservas-resultado: filtro attributes.type = "ampliar-disponibilidad-reservas-resultado"
 
-gcloud functions deploy obtener-menu --runtime python39 --trigger-topic recomendacion --entry-point obtener_menu --project groovy-rope-416616
+gcloud functions deploy obtener-menu --runtime python312 --trigger-topic recomendacion --entry-point obtener_menu --project groovy-rope-416616
 
 487a20c86795045e732cac2bce791ffa7a4a3d5447ef202bc20fc13b477a9c27
