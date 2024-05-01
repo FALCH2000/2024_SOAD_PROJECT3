@@ -46,7 +46,6 @@ def usar_bd(solicitud):
     result = conn.execute(solicitud)
     data = []  # Create an empty list to store data
     for row in result:
-        print(f"row = {row}")
         data.append(row)  # Append each row to the list
     conn.close()
     return data  # Return the captured data
@@ -61,34 +60,69 @@ def obtener_menu_callback(message):
     request = json.loads(request)
     mensaje = {}
     mensaje["data"] = {}
+    mensaje["data"]["types"] = []
+    mensaje["data"]["MainCourses"] = []
+    mensaje["data"]["Drinks"] = []
+    mensaje["data"]["Desserts"] = []
 
     if request["data"] == "obtener-menu":
-        conn = get_engine().connect()
-        # query = usar_bd("SELECT * FROM Food_Type;")
-        # 
-        query = "SELECT f.Name AS Food_Name, ft.Name AS Food_Type \
-            FROM Food f \
-            INNER JOIN Food_Type_Association fta ON f.ID = fta.Food_ID \
-            INNER JOIN Food_Type ft ON fta.Type_ID = ft.ID;"
-        food_and_types = conn.execute(query)
+        food_types = usar_bd("SELECT * FROM Food_Type;")
+
+        for row in food_types:
+            food_type_id = row[0]
+            food_type_name = row[1]
+            mensaje["data"]["types"].append({"id": food_type_id, "name": food_type_name})
         
-        for row in food_and_types:
-            mensaje["data"].append({"Food_Name": row[0], "Food_Type": row[1]})
+        main_courses = usar_bd("SELECT ID, Name\
+                    FROM Food\
+                    WHERE ID IN (\
+                    SELECT Food_ID\
+                    FROM Food_Type_Association\
+                    WHERE Type_ID = (SELECT ID FROM Food_Type WHERE Name = 'MainCourse'));")
+        for row in main_courses:
+            main_course_id = row[0]
+            main_course_name = row[1]
+            mensaje["data"]["MainCourses"].append({"id": main_course_id, "name": main_course_name})
+
+        drinks = usar_bd("SELECT ID, Name\
+                    FROM Food\
+                    WHERE ID IN (\
+                    SELECT Food_ID\
+                    FROM Food_Type_Association\
+                    WHERE Type_ID = (SELECT ID FROM Food_Type WHERE Name = 'Drink'));")
+        for row in drinks:
+            drink_id = row[0]
+            drink_name = row[1]
+            mensaje["data"]["Drinks"].append({"id": drink_id, "name": drink_name})
+
+        desserts = usar_bd("SELECT ID, Name\
+                    FROM Food\
+                    WHERE ID IN (\
+                    SELECT Food_ID\
+                    FROM Food_Type_Association\
+                    WHERE Type_ID = (SELECT ID FROM Food_Type WHERE Name = 'Dessert'));")
+        for row in desserts:
+            dessert_id = row[0]
+            dessert_name = row[1]
+            mensaje["data"]["Desserts"].append({"id": dessert_id, "name": dessert_name})
+
         mensaje["status"] = 200
         mensaje["message"] = "Menu obtenido correctamente"
+
     else:
         mensaje["status"] = 400
         mensaje["message"] = "Petición incorrecta"
     
     # Convertir el mensaje a JSON
     mensaje_json = json.dumps(mensaje)
+
     # Publica el mensaje de confirmación en el mismo tema de Pub/Sub
     publisher = pubsub_v1.PublisherClient()
     topic_path = 'projects/groovy-rope-416616/topics/recomendacion'
     publisher.publish(topic_path, data=mensaje_json.encode(), type='obtener-menu-resultado')
+    
     # Marca el mensaje como confirmado
     message.ack()
-
 
 # entry point de la cloud function
 def obtener_menu(event, context):
