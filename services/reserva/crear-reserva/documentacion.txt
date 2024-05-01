@@ -1,0 +1,35 @@
+#MENSAJE QUE DEBE ENVIAR EL FRONTEND
+
+{
+    "data": {
+        "method": "crear-reserva",
+        "username": "client1",
+        "number_of_people": "#",
+        "reservation_date": "2024-05-03",
+        "start_time": "13:00:00",
+        "end_time": "15:00:00",
+        "selected_tables": [
+            2,
+            1
+        ]
+    }
+}
+
+type = crear-reserva
+
+
+# MENSAJE QUE EL FRONTEND RECIBIRA DE ESTA SUSCRIPCION, SI SE LOGRA CREAR LA RESERVA
+
+{
+    "data": {
+        "reservation_id": "#",
+        "tables_id": [
+            3,
+            4,
+            5,
+            1
+        ]
+    },
+    "status": 200,
+    "message": "Reserva agendada con exito"
+}
