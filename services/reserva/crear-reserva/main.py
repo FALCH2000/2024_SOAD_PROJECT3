@@ -37,6 +37,11 @@ def usar_bd(solicitud):
     conn.close()
     return data  # Return the captured data
 
+def insert_into_db(solicitud):
+    conn = get_engine().connect()
+    conn.execute(solicitud)
+    conn.close()
+
 def crear_reserva_callback(message):
     # Procesa el mensaje recibido
     reserva = message.data.decode('utf-8')
@@ -51,13 +56,13 @@ def crear_reserva_callback(message):
     mensaje['data']['tables'] = []
 
     # revisar que reserva tenga los atributos correctos, la cantidad de atributos y que no estén vacíos
-    if not all(key in reserva for key in ['method', 'username', 'number_of_people', 'reservation_date', 'start_time', 'end_time', 'selected_tables']):
+    if not all(key in reserva['data'] for key in ['method', 'username', 'number_of_people', 'reservation_date', 'start_time', 'end_time', 'selected_tables']):
         mensaje = {
             "data": "",
             "status": 400,
             "message": "Bad Request. Faltaron atributos para crear la reserva"
         }
-    elif reserva['method'] == "crear-reserva":
+    elif reserva['data']['method'] == "crear-reserva":
         ## TODO: verificar que haya disponibilidad de la mesa en la fecha y hora solicitada
         ## si no hay disponibilidad, se debe enviar un mensaje de error
         ## si hay disponibilidad, se debe guardar la reserva en la base de datos
@@ -65,35 +70,34 @@ def crear_reserva_callback(message):
         
         # Se asume que hay disponibilidad de las mesas seleccionadas
         # Guardar la reserva en la base de datos
-        usar_bd(f"INSERT INTO Reservations (User_ID, Number_Of_People, Date_Reserved, Start_Time, End_Time)\
-                VALUES ('{reserva['username']}', {reserva['number_of_people']}, \
-                    '{reserva['reservation_date']}', '{reserva['start_time']}', \
-                        '{reserva['end_time']}')")
+        insert_into_db(f"INSERT INTO Reservations (User_ID, Number_Of_People, Date_Reserved, Start_Time, End_Time)\
+                VALUES ('{reserva['data']['username']}', {reserva['data']['number_of_people']}, \
+                '{reserva['data']['reservation_date']}', '{reserva['data']['start_time']}', \
+                '{reserva['data']['end_time']}')")
         
         reservation_id = usar_bd(f"SELECT Reservation_ID FROM Reservations \
-                                 WHERE User_ID = '{reserva['username']}' \
-                                    AND Date_Reserved = '{reserva['reservation_date']}' \
-                                        AND Start_Time = '{reserva['start_time']}' \
-                                            AND End_Time = '{reserva['end_time']}'")
+                                 WHERE User_ID = '{reserva['data']['username']}' \
+                                AND Date_Reserved = '{reserva['data']['reservation_date']}' \
+                                AND Start_Time = '{reserva['data']['start_time']}' \
+                                AND End_Time = '{reserva['data']['end_time']}'")
         
         # La hora de fin de la reserva es dos horas despues de la hora de inicio
-        end_time = reserva['start_time'] # "13:00:00"
-        end_time[1] = str(int(reserva['start_time'][1]) + 2) # "15:00:00"
+        
 
         # Guardar la disponibilidad de las mesas en la base de datos
-        for table_id in reserva['selected_tables']:
-            usar_bd(f"INSERT INTO Table_Availability (Table_ID, Date_Available, Start_Time, End_Time) \
-                    VALUES ({table_id}, '{reserva['reservation_date']}', '{reserva['start_time']}', \
-                        '{end_time}')")
-        
-        # Guardar la asociacion de las mesas reservadas con el numero de reserva en la base de datos
-        for table_id in reserva['selected_tables']:
-            usar_bd(f"INSERT INTO Reserved_Tables (Reservation_ID, Table_ID) \
+        for table_id in reserva['data']['selected_tables']:
+            insert_into_db(f"INSERT INTO Table_Availability (Table_ID, Date_Reserved, Start_Time, End_Time) \
+                    VALUES ({table_id}, '{reserva['data']['reservation_date']}', '{reserva['data']['start_time']}', \
+                    '{reserva['data']['end_time']}')")
+            
+            # Guardar la asociacion entre la reserva y las mesas seleccionadas
+            insert_into_db(f"INSERT INTO Reserved_Tables (Reservation_ID, Table_ID) \
                     VALUES ({reservation_id}, {table_id})")
+        
 
         # Mensaje de confirmación como un diccionario
         mensaje['data']['reservation_id'].append(reservation_id)
-        mensaje['data']['tables'].append(reserva['selected_tables'])
+        mensaje['data']['tables'].append(reserva['data']['selected_tables'])
 
         mensaje['status'] = 200
         mensaje['message'] = "OK. Reserva creada exitosamente"
