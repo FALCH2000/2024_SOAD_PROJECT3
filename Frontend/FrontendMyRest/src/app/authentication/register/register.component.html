@@ -1,0 +1,48 @@
+<div class="form-container">
+    <form class="example-form" [formGroup]="registerForm">
+        <h1> Registro </h1>
+        <hr>
+        <p>
+            <mat-form-field class="example-full-width" appearance="fill">
+                <mat-label>User Name</mat-label>
+                <input matInput placeholder="Enter your name" name="usename"
+                formControlName="username">
+            </mat-form-field>
+        </p>
+
+        <p>
+            <mat-form-field class="example-full-width" appearance="fill">
+                <mat-label>Email Address</mat-label>
+                <input matInput placeholder="Enter your email" name="email"
+                formControlName="email">
+            </mat-form-field>
+        </p>
+
+        <p>
+            <mat-form-field class="example-full-width" appearance="fill">
+                <mat-label>Password</mat-label>
+                <input matInput placeholder="Enter your password" value="" name="password" type="password" formControlName="password">
+            </mat-form-field>
+        </p>
+        <div *ngIf="registerForm?.get('password')?.hasError('pattern')" class="error-message">
+            La contraseña debe tener al menos 8 caracteres, incluyendo al menos una letra mayúscula, una letra minúscula y un número.
+        </div>
+
+        <p>
+            <mat-form-field class="example-full-width" appearance="fill">
+                <mat-label>Re enter password</mat-label>
+                <input matInput placeholder="Re enter your password" value="" name="passwordVerification" type="password" formControlName="passwordVerification">
+            </mat-form-field>
+        </p>
+
+        <div *ngIf="registerForm?.get('passwordVerification')?.hasError('passwordMismatch')" class="error-message">
+            Las contraseñas no coinciden.
+          </div>
+        
+        <p><a class="forgot-pass" href="#"> Forgot Password? </a> </p>
+        <button mat-stroked-button color="primary" (click)="submit()" class="submit">Submit</button>
+        <p *ngIf="show"> <button mat-button color="accent">Login success !!</button></p>
+
+        
+    </form>
+</div>
