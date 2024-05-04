@@ -1,0 +1,7 @@
+{
+    "data" : {
+        "method" : "obtener-calendario",
+        "date" : "2019-10-01",
+        "start_time" : "19:00:00"
+    }
+}

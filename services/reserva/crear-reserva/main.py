@@ -58,46 +58,51 @@ def crear_reserva_callback(message):
     # revisar que reserva tenga los atributos correctos, la cantidad de atributos y que no estén vacíos
     if not all(key in reserva['data'] for key in ['method', 'username', 'number_of_people', 'reservation_date', 'start_time', 'end_time', 'selected_tables']):
         mensaje = {
-            "data": "",
+            "data": ".",
             "status": 400,
             "message": "Bad Request. Faltaron atributos para crear la reserva"
         }
     elif reserva['data']['method'] == "crear-reserva":
-        ## TODO: verificar que haya disponibilidad de la mesa en la fecha y hora solicitada
+        try: 
+            ## TODO: verificar que haya disponibilidad de la mesa en la fecha y hora solicitada
 
-        insert_into_db(f"INSERT INTO Reservations (User_ID, Number_Of_People, Date_Reserved, Start_Time, End_Time)\
-                VALUES ('{reserva['data']['username']}', \
-                         {reserva['data']['number_of_people']}, \
-                        '{reserva['data']['reservation_date']}', \
-                        '{reserva['data']['start_time']}', \
-                        '{reserva['data']['end_time']}')")
-        
-        reservation_id = usar_bd(f"SELECT Reservation_ID FROM Reservations \
-                                 WHERE User_ID = '{reserva['data']['username']}' \
-                                AND Date_Reserved = '{reserva['data']['reservation_date']}' \
-                                AND Start_Time = '{reserva['data']['start_time']}' \
-                                AND End_Time = '{reserva['data']['end_time']}'")
-                
-        insert_into_db(f"INSERT INTO Table_Availability (Table_ID, Date_Reserved, Start_Time, End_Time) \
-                        VALUES ({reserva['data']['selected_tables']}, \
-                                '{reserva['data']['reservation_date']}', \
-                                '{reserva['data']['start_time']}', \
-                                '{reserva['data']['end_time']}')")
-        
-        insert_into_db(f"INSERT INTO Reservation_Tables_Association (Reservation_ID, Table_ID) \
-                        VALUES ({reservation_id}, \
-                                {reserva['data']['selected_tables']})")
+            insert_into_db(f"INSERT INTO Reservations (User_ID, Number_Of_People, Date_Reserved, Start_Time, End_Time)\
+                    VALUES ('{reserva['data']['username']}', \
+                            {reserva['data']['number_of_people']}, \
+                            '{reserva['data']['reservation_date']}', \
+                            '{reserva['data']['start_time']}', \
+                            '{reserva['data']['end_time']}')")
+            
+            reservation_id = usar_bd(f"SELECT Reservation_ID FROM Reservations \
+                                    WHERE User_ID = '{reserva['data']['username']}' \
+                                    AND Date_Reserved = '{reserva['data']['reservation_date']}' \
+                                    AND Start_Time = '{reserva['data']['start_time']}' \
+                                    AND End_Time = '{reserva['data']['end_time']}'")
+                    
+            insert_into_db(f"INSERT INTO Table_Availability (Table_ID, Date_Reserved, Start_Time, End_Time) \
+                            VALUES ({reserva['data']['selected_tables']}, \
+                                    '{reserva['data']['reservation_date']}', \
+                                    '{reserva['data']['start_time']}', \
+                                    '{reserva['data']['end_time']}')")
+            
+            insert_into_db(f"INSERT INTO Reservation_Tables_Association (Reservation_ID, Table_ID) \
+                            VALUES ({reservation_id}, \
+                                    {reserva['data']['selected_tables']})")
 
-        # Mensaje de confirmación como un diccionario
-        mensaje['data']['reservation_id'].append(reservation_id)
-        mensaje['data']['tables'].append(reserva['data']['selected_tables'])
+            # Mensaje de confirmación como un diccionario
+            mensaje['data']['reservation_id'].append(reservation_id)
+            mensaje['data']['tables'].append(reserva['data']['selected_tables'])
 
-        mensaje['status'] = 200
-        mensaje['message'] = "OK. Reserva creada exitosamente"
+            mensaje['status'] = 200
+            mensaje['message'] = "OK. Reserva creada exitosamente"
+        except Exception as e:
+            mensaje['data'] = "."
+            mensaje['status'] = 500
+            mensaje['message'] = f"Error al crear la reserva: {str(e)}"
     
     else:
         mensaje = {
-            "data": "",
+            "data": ".",
             "status": 400,
             "message": "Bad Request. Metodo no valido"
         }

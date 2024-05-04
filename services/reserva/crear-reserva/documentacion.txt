@@ -9,7 +9,7 @@
         "start_time": "13:00:00",
         "end_time": "15:00:00",
         "selected_tables": [
-            4
+            {4}
         ]
     }
 }

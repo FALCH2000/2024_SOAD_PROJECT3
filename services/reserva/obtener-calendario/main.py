@@ -37,37 +37,39 @@ def usar_bd(solicitud):
     conn.close()
     return data  # Return the captured data
 
-def delete_from_db(solicitud):
-    conn = get_engine().connect()
-    conn.execute(solicitud)
-    conn.close()
-
-def eliminar_reserva_callback(message):
+def obtener_calendario_callback(message):
     # Procesa el mensaje recibido
-    reservaporborrar = message.data.decode('utf-8')
+    message = message.data.decode('utf-8')
 
     # convertir el mensaje a un diccionario
-    reservaporborrar = json.loads(reservaporborrar)
+    message = json.loads(message)
 
     # json de respuesta
     mensaje = {}
+    mensaje['available_tables'] = []
 
-    print(f" Id mesa: {reservaporborrar['data']['reserved_tables']['table_id']}")
+    # Obtener todas las mesas disponibles para una fecha y hora especifica
 
-    # Eliminar la reserva
     try:
-        delete_from_db(f"DELETE FROM Reservation_Tables_Association WHERE Reservation_ID = {reservaporborrar['data']['reservation_id']}")
-        delete_from_db(f"DELETE FROM Reservations WHERE Reservation_ID = {reservaporborrar['data']['reservation_id']}")
-        delete_from_db(f"DELETE FROM Table_Availability \
-                        WHERE Table_ID = {reservaporborrar['data']['reserved_tables']['table_id']} \
-                        AND Date_Reserved = '{reservaporborrar['data']['reservation_date']}' \
-                        AND Start_Time = '{reservaporborrar['data']['start_time']}'")
+        # obtener todas las mesas
+        mesas = usar_bd("SELECT * FROM Tables")
 
-        mensaje['status'] = '200'
-        mensaje['message'] = 'Reserva eliminada'
+        # obtener las mesas ocupadas para esa fecha y hora
+        mesas_ocupadas = usar_bd(f"SELECT * FROM Table_Availability WHERE Date_Reserved = '{message['date']}' AND Start_Time = '{message['hora']}'")
+        if len(mesas_ocupadas) == 0:
+            mensaje['available_tables'] = mesas
+        else:
+            # obtener las mesas disponibles 
+            for mesa in mesas:
+                if mesa not in mesas_ocupadas:
+                    mensaje['available_tables'].append({"Table_ID": mesa[0], "Chairs" : mesa[1]})
+
+        mensaje['status'] = 200
+        mensaje['message'] = "Calendario obtenido correctamente"
+
     except Exception as e:
-        mensaje['status'] = '500'
-        mensaje['message'] = f'Error al eliminar la reserva: {str(e)}'
+        mensaje['status'] = 500
+        mensaje['message'] = f"Error al obtener el calendario: {str(e)}"
 
     # Convertir el mensaje a JSON
     mensaje_json = json.dumps(mensaje)
@@ -75,17 +77,17 @@ def eliminar_reserva_callback(message):
     # Publica el mensaje de confirmación en el mismo tema de Pub/Sub
     publisher = pubsub_v1.PublisherClient()
     topic_path = 'projects/groovy-rope-416616/topics/reserva'
-    publisher.publish(topic_path, data=mensaje_json.encode(), type='eliminar-reserva-resultado')
+    publisher.publish(topic_path, data=mensaje_json.encode(), type='obtener-calendario-resultado')
     
     # Marca el mensaje como confirmado
     message.ack()
 
-def eliminar_reserva(event, context):
+def obtener_calendario(event, context):
     # Nombre de la suscripción a la que te quieres suscribir
-    subscription_path = 'projects/groovy-rope-416616/subscriptions/eliminar-reserva'
+    subscription_path = 'projects/groovy-rope-416616/subscriptions/obtener-calendario'
 
     # Suscribirse al tema
-    future = subscriber.subscribe(subscription_path, callback=eliminar_reserva_callback)
+    future = subscriber.subscribe(subscription_path, callback=obtener_calendario_callback)
     print(f"Suscripto a la suscripción {subscription_path}")
 
     # Mantener la función en ejecución
