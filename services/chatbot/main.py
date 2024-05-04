@@ -4,7 +4,6 @@ from markupsafe import escape
 from google.cloud import language_v1
 
 def analyze_text(text):
-
     if isinstance(text, str) and len(text) > 5:
         client = language_v1.LanguageServiceClient()
 
