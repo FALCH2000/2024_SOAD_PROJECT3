@@ -1,7 +1,6 @@
 import sqlalchemy
 from google.cloud.sql.connector import Connector
 import json
-from google.cloud import pubsub_v1
 
 # Obtains all data from database
 def getconn():
@@ -35,93 +34,100 @@ def usar_bd(solicitud):
     conn.close()
     return data  # Return the captured data
 
-# Configura el cliente de Pub/Sub
-subscriber = pubsub_v1.SubscriberClient()
 
-def obtener_recomendacion_callback(message):
-    # Procesa el mensaje recibido
-    recomendacion = message.data.decode('utf-8')
-
-    # convertir el mensaje a un diccionario
-    recomendacion = json.loads(recomendacion)
-
+def obtener_recomendacion_callback(recomendacion, quantity):
     mensaje = {}
     mensaje["data"] = {}
 
-    print(f"Mensaje recibido: {recomendacion}, version 0.0.1")
-    if recomendacion["data"]["method"] == "obtener-recomendacion":
-        if recomendacion["data"]["dish2"]["ID"] == None or recomendacion["data"]["dish2"]["ID"] == 0:
-            query = f"SELECT \
-                        Main_Dish.Name AS Main_Dish,\
-                        Drink.Name AS Drink,\
-                        Dessert.Name AS Dessert\
-                    FROM \
-                        Recommendation R\
-                    INNER JOIN \
-                        Food Main_Dish ON R.Main_Dish_ID = Main_Dish.ID\
-                    INNER JOIN \
-                        Food Drink ON R.Drink_ID = Drink.ID\
-                    INNER JOIN \
-                        Food Dessert ON R.Dessert_ID = Dessert.ID\
-                    WHERE \
-                        R.Main_Dish_ID = {recomendacion["data"]["dish1"]["ID"]} OR R.Drink_ID = {recomendacion["data"]["dish1"]["ID"]} OR R.Dessert_ID = {recomendacion["data"]["dish1"]["ID"]};"
-            result = usar_bd(query)
-            if len(result) == 0:
-                mensaje["data"] = "No hay recomendaciones disponibles"
-            else:
-                for elem in result:
-                    mensaje["data"]["Main_Dish"] = elem[0]
-                    mensaje["data"]["Drink"] = elem[1]
-                    mensaje["data"]["Dessert"] = elem[2]
-            mensaje["status"] = 200
+    if quantity == 1:
+        query = f"SELECT \
+                    Main_Dish.Name AS Main_Dish,\
+                    Drink.Name AS Drink,\
+                    Dessert.Name AS Dessert\
+                FROM \
+                    Recommendation R\
+                INNER JOIN \
+                    Food Main_Dish ON R.Main_Dish_ID = Main_Dish.ID\
+                INNER JOIN \
+                    Food Drink ON R.Drink_ID = Drink.ID\
+                INNER JOIN \
+                    Food Dessert ON R.Dessert_ID = Dessert.ID\
+                WHERE \
+                    R.Main_Dish_ID = {recomendacion[0]} OR R.Drink_ID = {recomendacion[0]} OR R.Dessert_ID = {recomendacion[0]};"
+        result = usar_bd(query)
+        if len(result) == 0:
+            mensaje["data"] = "No hay recomendaciones disponibles"
         else:
-            query = f"SELECT \
-                        Main_Dish.Name AS Main_Dish,\
-                        Drink.Name AS Drink,\
-                        Dessert.Name AS Dessert\
-                    FROM \
-                        Recommendation R\
-                    INNER JOIN \
-                        Food Main_Dish ON R.Main_Dish_ID = Main_Dish.ID\
-                    INNER JOIN \
-                        Food Drink ON R.Drink_ID = Drink.ID\
-                    INNER JOIN \
-                        Food Dessert ON R.Dessert_ID = Dessert.ID\
-                    WHERE \
-                        (R.Main_Dish_ID = {recomendacion["data"]['dish1']['ID']} AND R.Drink_ID = {recomendacion["data"]['dish2']['ID']} AND R.Dessert_ID = {recomendacion["data"]['dish2']['ID']}) OR\
-                        (R.Main_Dish_ID = {recomendacion["data"]['dish1']['ID']} AND R.Drink_ID = {recomendacion["data"]['dish2']['ID']} AND R.Dessert_ID = {recomendacion["data"]['dish2']['ID']});"
-            result = usar_bd(query)
-            if len(result) == 0:
-                mensaje["data"] = "No hay recomendaciones disponibles"
-            else:
-                for elem in result:
-                    mensaje["data"]["Main_Dish"] = elem[0]
-                    mensaje["data"]["Drink"] = elem[1]
-                    mensaje["data"]["Dessert"] = elem[2]
+            for elem in result:
+                mensaje["data"]["Main_Dish"] = elem[0]
+                mensaje["data"]["Drink"] = elem[1]
+                mensaje["data"]["Dessert"] = elem[2]
     else:
-        mensaje["status"] = 400
-        mensaje["data"] = "Petición incorrecta"
+        query = f"SELECT \
+                    Main_Dish.Name AS Main_Dish,\
+                    Drink.Name AS Drink,\
+                    Dessert.Name AS Dessert\
+                FROM \
+                    Recommendation R\
+                INNER JOIN \
+                    Food Main_Dish ON R.Main_Dish_ID = Main_Dish.ID\
+                INNER JOIN \
+                    Food Drink ON R.Drink_ID = Drink.ID\
+                INNER JOIN \
+                    Food Dessert ON R.Dessert_ID = Dessert.ID\
+                WHERE \
+                    (R.Main_Dish_ID = {recomendacion[0]} AND R.Drink_ID = {recomendacion[1]}) OR\
+                    (R.Main_Dish_ID = {recomendacion[1]} AND R.Drink_ID = {recomendacion[0]}) OR\
+                    (R.Main_Dish_ID = {recomendacion[0]} AND R.Dessert_ID = {recomendacion[1]}) OR\
+                    (R.Main_Dish_ID = {recomendacion[1]} AND R.Dessert_ID = {recomendacion[0]}) OR\
+                    (R.Drink_ID = {recomendacion[0]} AND R.Dessert_ID = {recomendacion[1]}) OR\
+                    (R.Drink_ID = {recomendacion[1]} AND R.Dessert_ID = {recomendacion[0]});"
+
+        result = usar_bd(query)
+        # R.Dessert_ID = {recomendacion["data"]['dish2']['ID']}
+        if len(result) == 0:
+            mensaje["data"] = "No hay recomendaciones disponibles"
+        else:
+            for elem in result:
+                mensaje["data"]["Main_Dish"] = elem[0]
+                mensaje["data"]["Drink"] = elem[1]
+                mensaje["data"]["Dessert"] = elem[2]
     
     # Convertir el mensaje a JSON
     mensaje_json = json.dumps(mensaje)
     
-    # Publica el mensaje de confirmación en el mismo tema de Pub/Sub
-    publisher = pubsub_v1.PublisherClient()
-    topic_path = 'projects/groovy-rope-416616/topics/recomendacion'
-    publisher.publish(topic_path, data=mensaje_json.encode(), type='obtener-recomendacion-resultado')
+    return mensaje_json
+
+
+def obtener_recomendacion(request):
+    request_args = request.args
+    path = request.path
+    respuesta = {}
+
+    validate = (request_args["dish1"] != 0 and request_args["dish1"] is not None and request_args.get("dish1") != "")
+
+    if not validate:
+        respuesta["message"] = "Error: Peticion incorrecta"
+        return (json.dumps(respuesta), 400)
+
     
-    # Marca el mensaje como confirmado
-    message.ack()
-
-
-# entry point de la cloud function
-def obtener_recomendacion(event, context):
-    # Nombre de la suscripción a la que te quieres suscribir
-    subscription_path = 'projects/groovy-rope-416616/subscriptions/obtener-recomendacion'
-
-    # Suscribirse al tema
-    future = subscriber.subscribe(subscription_path, callback=obtener_recomendacion_callback)
-    print(f"Suscripto a la suscripción {subscription_path}")
-
-    # Mantener la función en ejecución
-    future.result()
+    if path == "/" and request.method == 'GET' and "dish1" in request_args:
+        dish1_id = request_args.get("dish1")
+        
+        if "dish2" not in request_args:
+            dishes = (dish1_id)
+            return (obtener_recomendacion_callback(dishes, 1), 200)
+        else:
+            validate2 = (request_args["dish2"] != 0 and request_args["dish2"] is not None and request_args.get("dish2") != "")
+            if not validate2:
+                respuesta["message"] = "Error: Peticion incorrecta"
+                return (json.dumps(respuesta), 400)
+            dish2_id = request_args.get("dish2")
+            if dish2_id is None or dish2_id == "0":
+                respuesta["message"] = "Error: Peticion incorrecta"
+                return (json.dumps(respuesta), 400)
+            dishes = (dish1_id, dish2_id)
+            return (obtener_recomendacion_callback(dishes, 2), 200)
+    else:
+        respuesta["message"] = "Error: Método no válido."
+        return (json.dumps(respuesta), 404)

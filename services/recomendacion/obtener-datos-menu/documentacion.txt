@@ -1,10 +1,5 @@
-
-# MENSAJE QUE DEBE ENVIAR EL FRONTEND A ESTA FUNCION:
-{
-    "data" : "obtener-menu"
-}
-
-# Y agregar atributo: type = obtener-menu en el codigo javascript
+La url:
+https://us-central1-groovy-rope-416616.cloudfunctions.net/obtener-menu
 
 
 # MENSAJE QUE RECIBIRA EL FRONTEND DE PARTE DE ESTA FUNCION:
