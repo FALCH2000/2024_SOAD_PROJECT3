@@ -1,10 +1,6 @@
 import sqlalchemy
 from google.cloud.sql.connector import Connector
 import json
-from google.cloud import pubsub_v1
-
-# Configura el cliente de Pub/Sub
-subscriber = pubsub_v1.SubscriberClient()
 
 # Obtains all data from database
 def getconn():
@@ -37,13 +33,7 @@ def usar_bd(solicitud):
     conn.close()
     return data  # Return the captured data
 
-def obtener_calendario_callback(message):
-    # Procesa el mensaje recibido
-    message = message.data.decode('utf-8')
-
-    # convertir el mensaje a un diccionario
-    message = json.loads(message)
-
+def obtener_calendario_callback(date_request, start_time_request):
     # json de respuesta
     mensaje = {}
     mensaje['available_tables'] = []
@@ -55,15 +45,53 @@ def obtener_calendario_callback(message):
         mesas = usar_bd("SELECT * FROM Tables")
 
         # obtener las mesas ocupadas para esa fecha y hora
-        mesas_ocupadas = usar_bd(f"SELECT * FROM Table_Availability WHERE Date_Reserved = '{message['date']}' AND Start_Time = '{message['hora']}'")
+        decena = start_time_request[0]
+        unidad = start_time_request[1]
+        end_time = ""
+        # sumar 2 horas a la hora de inicio para obtener la hora de fin
+        if decena == "0":  
+            suma = int(unidad) + 2
+
+            if suma < 10:
+                end_time = "0" + str(suma) + start_time_request[2:]
+            else:
+                end_time = str(suma) + start_time_request[2:]
+
+        elif decena == "1":
+            suma = int(decena)*10 + int(unidad) + 2
+            end_time = str(suma) + start_time_request[2:]
+        
+        elif decena == "2":
+            suma = int(decena)*20 + int(unidad) + 2
+
+            if suma < 25:
+                end_time = str(suma) + start_time_request[2:]
+            else: # si la suma es mayor a 24
+                end_time = "00" + start_time_request[2:]
+
+        print("End time print: " + end_time)
+        print(" ")
+
+        mesas_ocupadas = usar_bd(f"SELECT * FROM Table_Availability WHERE Date_Reserved = '{date_request}' AND Start_Time >= '{start_time_request}' AND End_Time <= '{end_time}'")
+        
+        # cuando no hay mesas ocupadas
         if len(mesas_ocupadas) == 0:
-            mensaje['available_tables'] = mesas
-        else:
-            # obtener las mesas disponibles 
             for mesa in mesas:
-                if mesa not in mesas_ocupadas:
+                mensaje['available_tables'].append({"Table_ID": mesa[0], "Chairs" : mesa[1]})
+        else:
+            print("Hay mesas ocupadas")
+            # cuando si hay mesas ocupadas
+            for mesa in mesas:
+                busy_table = True
+                for mesa_ocupada in mesas_ocupadas:
+                    if mesa[0] == mesa_ocupada[0]:
+                        busy_table = False
+                        break
+
+                if busy_table:
                     mensaje['available_tables'].append({"Table_ID": mesa[0], "Chairs" : mesa[1]})
 
+ 
         mensaje['status'] = 200
         mensaje['message'] = "Calendario obtenido correctamente"
 
@@ -73,22 +101,26 @@ def obtener_calendario_callback(message):
 
     # Convertir el mensaje a JSON
     mensaje_json = json.dumps(mensaje)
-    
-    # Publica el mensaje de confirmación en el mismo tema de Pub/Sub
-    publisher = pubsub_v1.PublisherClient()
-    topic_path = 'projects/groovy-rope-416616/topics/reserva'
-    publisher.publish(topic_path, data=mensaje_json.encode(), type='obtener-calendario-resultado')
-    
-    # Marca el mensaje como confirmado
-    message.ack()
 
-def obtener_calendario(event, context):
-    # Nombre de la suscripción a la que te quieres suscribir
-    subscription_path = 'projects/groovy-rope-416616/subscriptions/obtener-calendario'
+    return (mensaje_json, mensaje['status'])
 
-    # Suscribirse al tema
-    future = subscriber.subscribe(subscription_path, callback=obtener_calendario_callback)
-    print(f"Suscripto a la suscripción {subscription_path}")
+# entry point de la cloud function
+def obtener_calendario(request):
+    print("Obtener calendario")
+    request_args = request.args
+    path = request.path
+    respuesta = {}
 
-    # Mantener la función en ejecución
-    future.result()
+    print("Antes de validar")
+    validate = (request_args.get('date') != "" and request_args.get('start_time') != "")
+
+    respuesta = {}
+    print("AAAAAAAAAAAAAAAAAAAA")
+    print(" ")
+    if validate:
+        print("Validación exitosa")
+        return obtener_calendario_callback(request_args.get('date'), request_args.get('start_time'))
+    else:
+        respuesta["status"] = 404
+        respuesta["message"] = "Error: Método no válido."
+        return f"{json.dumps(respuesta, ensure_ascii=False)}"
