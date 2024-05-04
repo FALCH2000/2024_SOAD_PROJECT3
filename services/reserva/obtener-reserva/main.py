@@ -94,69 +94,6 @@ def obtener_reservas_futuras(fecha,hora):
     result_json = json.dumps(mensaje)
     return result_json
 
-def obtener_reservas_callback(recomendacion, quantity):
-    mensaje = {}
-    mensaje["data"] = {}
-
-    if quantity == 1:
-        query = f"SELECT \
-                    Main_Dish.Name AS Main_Dish,\
-                    Drink.Name AS Drink,\
-                    Dessert.Name AS Dessert\
-                FROM \
-                    Recommendation R\
-                INNER JOIN \
-                    Food Main_Dish ON R.Main_Dish_ID = Main_Dish.ID\
-                INNER JOIN \
-                    Food Drink ON R.Drink_ID = Drink.ID\
-                INNER JOIN \
-                    Food Dessert ON R.Dessert_ID = Dessert.ID\
-                WHERE \
-                    R.Main_Dish_ID = {recomendacion[0]} OR R.Drink_ID = {recomendacion[0]} OR R.Dessert_ID = {recomendacion[0]};"
-        result = usar_bd(query)
-        if len(result) == 0:
-            mensaje["data"] = "No hay recomendaciones disponibles"
-        else:
-            for elem in result:
-                mensaje["data"]["Main_Dish"] = elem[0]
-                mensaje["data"]["Drink"] = elem[1]
-                mensaje["data"]["Dessert"] = elem[2]
-    else:
-        query = f"SELECT \
-                    Main_Dish.Name AS Main_Dish,\
-                    Drink.Name AS Drink,\
-                    Dessert.Name AS Dessert\
-                FROM \
-                    Recommendation R\
-                INNER JOIN \
-                    Food Main_Dish ON R.Main_Dish_ID = Main_Dish.ID\
-                INNER JOIN \
-                    Food Drink ON R.Drink_ID = Drink.ID\
-                INNER JOIN \
-                    Food Dessert ON R.Dessert_ID = Dessert.ID\
-                WHERE \
-                    (R.Main_Dish_ID = {recomendacion[0]} AND R.Drink_ID = {recomendacion[1]}) OR\
-                    (R.Main_Dish_ID = {recomendacion[1]} AND R.Drink_ID = {recomendacion[0]}) OR\
-                    (R.Main_Dish_ID = {recomendacion[0]} AND R.Dessert_ID = {recomendacion[1]}) OR\
-                    (R.Main_Dish_ID = {recomendacion[1]} AND R.Dessert_ID = {recomendacion[0]}) OR\
-                    (R.Drink_ID = {recomendacion[0]} AND R.Dessert_ID = {recomendacion[1]}) OR\
-                    (R.Drink_ID = {recomendacion[1]} AND R.Dessert_ID = {recomendacion[0]});"
-
-        result = usar_bd(query)
-        # R.Dessert_ID = {recomendacion["data"]['dish2']['ID']}
-        if len(result) == 0:
-            mensaje["data"] = "No hay recomendaciones disponibles"
-        else:
-            for elem in result:
-                mensaje["data"]["Main_Dish"] = elem[0]
-                mensaje["data"]["Drink"] = elem[1]
-                mensaje["data"]["Dessert"] = elem[2]
-    
-    # Convertir el mensaje a JSON
-    mensaje_json = json.dumps(mensaje)
-    
-    return mensaje_json
-
 
 def obtener_reservas(request):
     request_args = request.args
