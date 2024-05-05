@@ -87,7 +87,6 @@ def editar_reserva_callback(message):
     message.ack()
 
     # validar que el mensaje tenga los campos necesarios
-    # revisar que reserva tenga los atributos correctos, la cantidad de atributos y que no estén vacíos
     if not all(key in reserva['data'] for key in ['method', 'username', 'number_of_people', 'reservation_date', 'start_time', 'selected_tables']):
         print("Codigo: 400. Faltan atributos en la solicitud editar-reserva")
 
@@ -97,6 +96,29 @@ def editar_reserva_callback(message):
             # TODO: verificar que haya disponibilidad de las mesas en la fecha y hora solicitada
             # for
             # verificar que la cantidad de personas de la reserva sea menor o igual a la capacidad de las mesas seleccionadas
+            
+            # verificar que la reserva a editar sea futura segun la fecha y hora actual de us-central1-arizona
+            # Definir la zona horaria US-Central
+            us_central_tz = pytz.timezone('US/Central')
+
+            # Obtener la hora actual en la zona horaria US-Central
+            hora_actual_us_central = datetime.datetime.now(us_central_tz)
+
+            # Convertir a la zona horaria de Arizona
+            zona_horaria_arizona = pytz.timezone('US/Arizona')
+            hora_actual_arizona = hora_actual_us_central.astimezone(zona_horaria_arizona)
+
+            hora_actual = hora_actual_us_central.strftime('%H:%M:%S')
+            fecha_actual = hora_actual_us_central.strftime('%Y-%m-%d')
+
+            print("Hora actual en Arizona:", hora_actual_arizona)
+            print("Hora normal en Arizona:", hora_actual)
+
+            if fecha_actual > reserva['data']['reservation_date']:
+                #mensaje['status'] = '400'
+                #mensaje['message'] = 'No se puede eliminar una reserva pasada'
+                return #mensaje
+            
             total_chairs = []
             for table in reserva['data']['selected_tables']:
                 
