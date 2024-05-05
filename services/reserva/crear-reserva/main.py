@@ -100,12 +100,11 @@ def crear_reserva_callback(message):
                 sillas = usar_bd(f"SELECT Chairs FROM Tables WHERE Table_Number = {table}")
               
                 total_chairs.append(int(sillas[0][0]))
-                if int(reserva['data']['number_of_people']) > sillas[0][0]:
-                    print("Codigo: 400. La cantidad de personas de la reserva supera la capacidad de las mesas seleccionadas")
-                    return
             
-            if sum(total_chairs) > int(reserva['data']['number_of_people']):
-                print("Codigo: 400. Esta queriendo utilizar mas mesas de las necesarias.")
+            print(f"TOTAL SILLAS: {sum(total_chairs)} y PERSONAS: {int(reserva['data']['number_of_people'])}")
+            if sum(total_chairs) < int(reserva['data']['number_of_people']):
+                print("Codigo: 400. Reserva no creada, eligio mal las mesas ya que le faltarian sillas.")
+                return
             
             # verificar que las horas de la reserva esten dentro del horario de atencion del restaurante
             hora_apertura_restaurante = usar_bd(f"SELECT Opening_Time FROM Restaurant_Data WHERE Local_ID = 1")
