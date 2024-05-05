@@ -100,15 +100,30 @@ def obtener_recomendacion_callback(recomendacion, quantity):
 
 
 def obtener_recomendacion(request):
+    if request.method == "OPTIONS":
+        # Allows GET requests from any origin with the Content-Type
+        # header and caches preflight response for an 3600s
+        headers = {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Max-Age": "3600",
+        }
+
+        return ("", 204, headers)
     request_args = request.args
     path = request.path
     respuesta = {}
-
+    # Set CORS headers for main requests
+    headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": "true",
+    }
     validate = (request_args["dish1"] != 0 and request_args["dish1"] is not None and request_args.get("dish1") != "")
 
     if not validate:
         respuesta["message"] = "Error: Peticion incorrecta"
-        return (json.dumps(respuesta), 400)
+        return (json.dumps(respuesta), 400, headers)
 
     
     if path == "/" and request.method == 'GET' and "dish1" in request_args:
@@ -116,18 +131,18 @@ def obtener_recomendacion(request):
         
         if "dish2" not in request_args:
             dishes = (dish1_id)
-            return (obtener_recomendacion_callback(dishes, 1), 200)
+            return (obtener_recomendacion_callback(dishes, 1), 200,headers)
         else:
             validate2 = (request_args["dish2"] != 0 and request_args["dish2"] is not None and request_args.get("dish2") != "")
             if not validate2:
                 respuesta["message"] = "Error: Peticion incorrecta"
-                return (json.dumps(respuesta), 400)
+                return (json.dumps(respuesta), 400,headers)
             dish2_id = request_args.get("dish2")
             if dish2_id is None or dish2_id == "0":
                 respuesta["message"] = "Error: Peticion incorrecta"
-                return (json.dumps(respuesta), 400)
+                return (json.dumps(respuesta), 400,headers)
             dishes = (dish1_id, dish2_id)
-            return (obtener_recomendacion_callback(dishes, 2), 200)
+            return (obtener_recomendacion_callback(dishes, 2), 200,headers)
     else:
         respuesta["message"] = "Error: Método no válido."
-        return (json.dumps(respuesta), 404)
+        return (json.dumps(respuesta), 404,headers)

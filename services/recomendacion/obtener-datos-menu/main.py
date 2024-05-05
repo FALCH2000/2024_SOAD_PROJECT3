@@ -95,13 +95,31 @@ def obtener_menu_callback(message):
 
 # entry point de la cloud function
 def obtener_menu(request):
+    # Set CORS headers for the preflight request
+    if request.method == "OPTIONS":
+        # Allows GET requests from any origin with the Content-Type
+        # header and caches preflight response for an 3600s
+        headers = {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Max-Age": "3600",
+        }
+
+        return ("", 204, headers)
+
     request_json = request.get_json(silent=True)
     request_args = request.args
     path = (request.path)
     respuesta = {}
+    # Set CORS headers for main requests
+    headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": "true",
+    }
     if path == "/" and request.method == 'GET' and request_json is None and not request_args:
-        return obtener_menu_callback(request)
+        return (obtener_menu_callback(request),200,headers)
     else:
         respuesta["status"] = 404
         respuesta["message"] = "Error: Método no válido."
-        return f"{json.dumps(respuesta, ensure_ascii=False)}"
+        return (f"{json.dumps(respuesta, ensure_ascii=False)}",404,headers)
