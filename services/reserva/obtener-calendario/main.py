@@ -117,6 +117,9 @@ def obtener_calendario(request):
     respuesta = {}
     print("AAAAAAAAAAAAAAAAAAAA")
     print(" ")
+
+    ## TODO: validar el path
+    
     if validate:
         print("Validación exitosa")
         return obtener_calendario_callback(request_args.get('date'), request_args.get('start_time'))
