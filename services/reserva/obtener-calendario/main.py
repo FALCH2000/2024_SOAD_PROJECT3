@@ -36,7 +36,8 @@ def usar_bd(solicitud):
 def obtener_calendario_callback(date_request, start_time_request):
     # json de respuesta
     mensaje = {}
-    mensaje['available_tables'] = []
+    mensaje['data'] = {}
+    mensaje['data']['available_tables'] = []
 
     # Obtener todas las mesas disponibles para una fecha y hora especifica
 
@@ -89,7 +90,7 @@ def obtener_calendario_callback(date_request, start_time_request):
                         break
 
                 if busy_table:
-                    mensaje['available_tables'].append({"Table_ID": mesa[0], "Chairs" : mesa[1]})
+                    mensaje['data']['available_tables'].append({"Table_ID": mesa[0], "Chairs" : mesa[1]})
 
  
         mensaje['status'] = 200
@@ -106,23 +107,34 @@ def obtener_calendario_callback(date_request, start_time_request):
 
 # entry point de la cloud function
 def obtener_calendario(request):
-    print("Obtener calendario")
+    # Set CORS headers for the preflight request
+    if request.method == "OPTIONS":
+        # Allows GET requests from any origin with the Content-Type
+        # header and caches preflight response for an 3600s
+        headers = {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Max-Age": "3600",
+        }
+
+        return ("", 204, headers)
+    
     request_args = request.args
     path = request.path
     respuesta = {}
-
-    print("Antes de validar")
     validate = (request_args.get('date') != "" and request_args.get('start_time') != "")
-
     respuesta = {}
-    print("AAAAAAAAAAAAAAAAAAAA")
-    print(" ")
-
-    ## TODO: validar el path
     
-    if validate:
-        print("Validación exitosa")
+    # Set CORS headers for main requests
+    headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": "true",
+    }
+    
+    if path == "/" and request.method == 'GET' and validate:
         return obtener_calendario_callback(request_args.get('date'), request_args.get('start_time'))
+    
     else:
         respuesta["status"] = 404
         respuesta["message"] = "Error: Método no válido."
