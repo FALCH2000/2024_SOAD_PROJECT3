@@ -96,9 +96,28 @@ def obtener_reservas_futuras(fecha,hora):
 
 
 def obtener_reservas(request):
+    # Set CORS headers for the preflight request
+    if request.method == "OPTIONS":
+        # Allows GET requests from any origin with the Content-Type
+        # header and caches preflight response for an 3600s
+        headers = {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Max-Age": "3600",
+        }
+
+        return ("", 204, headers)
+
     request_args = request.args
     path = request.path
     respuesta = {}
+
+    # Set CORS headers for main requests
+    headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": "true",
+    }
 
     # Definir la zona horaria US-Central
     us_central_tz = pytz.timezone('US/Central')
@@ -116,16 +135,12 @@ def obtener_reservas(request):
     print("Hora actual en US-Central (Texas):", hora_actual_us_central)
     print("Hora actual en Arizona:", hora_actual_arizona)
 
-    """respuesta["hora_actual_us_central"] = str(hora_actual_us_central)
-    respuesta["hora_actual_arizona"] = str(hora_actual_arizona)
-
-    return (json.dumps(respuesta), 200)"""
 
     validate = (request_args.get("time") != "" and request_args.get("time") is not None)
 
     if not validate:
         respuesta["message"] = "Error: Peticion incorrecta"
-        return (json.dumps(respuesta), 400)
+        return (json.dumps(respuesta), 400, headers)
 
     
     if path == "/" and request.method == 'GET' and "time" in request_args:
@@ -134,14 +149,14 @@ def obtener_reservas(request):
         validate2 = (request_args.get("user_id") != "" and request_args.get("user_id") is not None)
 
         if tiempo == "all":
-            return (obtener_todas_reservas(),200)
+            return (obtener_todas_reservas(), 200, headers)
         elif tiempo == "pasadas":
-            return (obtener_reservas_pasadas(fecha_actual,hora_actual),200)
+            return (obtener_reservas_pasadas(fecha_actual,hora_actual),200, headers)
         elif tiempo == "futuras":
-            return (obtener_reservas_futuras(fecha_actual,hora_actual),200)
+            return (obtener_reservas_futuras(fecha_actual,hora_actual),200, headers)
         else:
             respuesta["message"] = "Error: Peticion incorrecta"
-            return (json.dumps(respuesta), 400)
+            return (json.dumps(respuesta), 400, headers)
     else:
         respuesta["message"] = "Error: Método no válido."
-        return (json.dumps(respuesta), 404)
+        return (json.dumps(respuesta), 404, headers)
