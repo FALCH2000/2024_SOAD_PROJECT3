@@ -73,33 +73,58 @@ def eliminar_reserva_callback(message):
     print("Hora normal en Arizona:", hora_actual)
 
     if  not all(key in reservaporborrar['data'] for key in ['method', 'reservation_id', 'username', 'reservation_date', 'start_time']):
+        print("Faltan datos en la solicitud")
         mensaje['status'] = '400'
         mensaje['message'] = 'Faltan datos en la solicitud'
         return mensaje
     
     elif reservaporborrar['data']['method'] == "eliminar-reserva":
         try:
+            print(f"reservaporborrar = {reservaporborrar['data']['reservation_id']}")
+            print(f"fecha_actual {fecha_actual} vs date_reservada {reservaporborrar['data']['reservation_date']}")
 
             # verificar si la reserva es futura
             if fecha_actual > reservaporborrar['data']['reservation_date']:
+                print("No se puede eliminar una reserva pasada")
                 mensaje['status'] = '400'
                 mensaje['message'] = 'No se puede eliminar una reserva pasada'
-                return mensaje
+                return json.dumps(mensaje)
             
+            # verificar que la reserva exista
+            reserva_verification = usar_bd(f"SELECT * FROM Reservations WHERE Reservation_ID = {reservaporborrar['data']['reservation_id']}")
+            if reserva_verification == []:
+                print("La reserva no existe")
+                mensaje['status'] = '404'
+                mensaje['message'] = 'La reserva no existe'
+                return json.dumps(mensaje)
+            print(f"reservaporborrar = {reserva_verification[0][0]}")
+
             # obtener las mesas asociadas a la reserva
             mesasporliberar = usar_bd(f"SELECT Table_ID FROM Reservation_Tables_Association WHERE Reservation_ID = {reservaporborrar['data']['reservation_id']}")
-            print(f"mesasporliberar = {mesasporliberar}")  # [#row][#column]
+            print(f"mesasporliberar = {mesasporliberar}")
+            print(f"mesasporliberar = {mesasporliberar[0][0]}")  # [#row][#column]
             
+            # verificar si la reserva tiene mesas asociadas
+            if mesasporliberar == []:
+                print("La reserva no tiene mesas asociadas")
+                mensaje['status'] = '404'
+                mensaje['message'] = 'La reserva no tiene mesas asociadas'
+                return json.dumps(mensaje)
+
             delete_from_db(f"DELETE FROM Reservation_Tables_Association WHERE Reservation_ID = {reservaporborrar['data']['reservation_id']}")
-            
+            print("Mesas desasociadas de la reserva")
+
             # liberar las mesas ocupadas
             for row in mesasporliberar:
                 delete_from_db(f"DELETE FROM Table_Availability WHERE Table_ID = {str(row[0])} \
                             AND Date_Reserved = '{reservaporborrar['data']['reservation_date']}' \
                             AND Start_Time = '{reservaporborrar['data']['start_time']}'")
-            
+                
+            print("Mesas liberadas")
+
             delete_from_db(f"DELETE FROM Reservations WHERE Reservation_ID = {reservaporborrar['data']['reservation_id']}")
-            
+            print("Reserva eliminada")
+
             mensaje['status'] = '200'
             mensaje['message'] = 'Reserva eliminada'
 

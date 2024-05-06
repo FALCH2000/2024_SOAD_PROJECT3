@@ -1,9 +1,9 @@
 {
     "data":{
         "method" : "eliminar-reserva",
-        "reservation_id" : "154",
+        "reservation_id" : "155",
         "username" : "client1",
-        "reservation_date" : "1999-05-04",
+        "reservation_date" : "2050-05-04",
         "start_time" : "13:00:00"
     }
 }
