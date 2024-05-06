@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
-
+import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
@@ -12,7 +12,8 @@ import { MatInputModule } from '@angular/material/input';
     CommonModule,
     MatButtonModule,
     FormsModule,
-    MatInputModule
+    MatInputModule,
+    HttpClientModule
   ],
   exports: [
     CommonModule,
