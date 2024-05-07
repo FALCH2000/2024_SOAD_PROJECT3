@@ -1,0 +1,7 @@
+{
+    "data" : {
+        "method" : "obtener-calendario",
+        "date" : "2021-12-01",
+        "start_time" : "18:00:00"
+    }
+}

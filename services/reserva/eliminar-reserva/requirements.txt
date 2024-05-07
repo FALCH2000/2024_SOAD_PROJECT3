@@ -1,0 +1,6 @@
+google-cloud-pubsub>=2.6.1
+sqlalchemy==1.4.*
+cloud-sql-python-connector==0.9.*
+sqlalchemy_pytds==0.3.5
+python-tds==1.15.0
+pytz==2024.1
