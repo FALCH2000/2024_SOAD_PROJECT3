@@ -2,6 +2,8 @@ import sqlalchemy
 from google.cloud.sql.connector import Connector
 import json
 from google.cloud import pubsub_v1
+import datetime
+import pytz
 
 # Configura el cliente de Pub/Sub
 subscriber = pubsub_v1.SubscriberClient()
@@ -87,7 +89,7 @@ def editar_reserva_callback(message):
     message.ack()
 
     # validar que el mensaje tenga los campos necesarios
-    if not all(key in reserva['data'] for key in ['method', 'username', 'number_of_people', 'reservation_date', 'start_time', 'selected_tables']):
+    if not all(key in reserva['data'] for key in ['method', 'username', 'reservation_id', 'number_of_people', 'reservation_date', 'start_time', 'selected_tables']):
         print("Codigo: 400. Faltan atributos en la solicitud editar-reserva")
 
     elif reserva['data']['method'] == "editar-reserva":
@@ -95,9 +97,7 @@ def editar_reserva_callback(message):
 
             # TODO: verificar que haya disponibilidad de las mesas en la fecha y hora solicitada
             # for
-            # verificar que la cantidad de personas de la reserva sea menor o igual a la capacidad de las mesas seleccionadas
             
-            # verificar que la reserva a editar sea futura segun la fecha y hora actual de us-central1-arizona
             # Definir la zona horaria US-Central
             us_central_tz = pytz.timezone('US/Central')
 
@@ -114,18 +114,33 @@ def editar_reserva_callback(message):
             print("Hora actual en Arizona:", hora_actual_arizona)
             print("Hora normal en Arizona:", hora_actual)
 
+            # verificar que la reserva exista
+            reserva_verification = usar_bd(f"SELECT * FROM Reservations WHERE Reservation_ID = {reserva['data']['reservation_id']}")
+            old_data = reserva_verification[0]
+            if reserva_verification == []:
+                print("Codigo: 404. La reserva no existe")
+                return
+
+            # Suponiendo que reserva_verification contiene cadenas para fecha y hora
+            old_date = reserva_verification[0][3].strftime('%Y-%m-%d')
+            old_start_time = reserva_verification[0][4].strftime('%H:%M:%S')
+            print(f"old date = {old_date} old start time = {old_start_time}")
+
+            # verificar si la reserva es futura
             if fecha_actual > reserva['data']['reservation_date']:
+                print("Codigo: 400. No se puede editar una reserva pasada")
                 #mensaje['status'] = '400'
                 #mensaje['message'] = 'No se puede eliminar una reserva pasada'
-                return #mensaje
+                return #json.dumps(mensaje)
             
             total_chairs = []
             for table in reserva['data']['selected_tables']:
                 
                 sillas = usar_bd(f"SELECT Chairs FROM Tables WHERE Table_Number = {table}")
-              
+                print(f"SILLAS: {sillas[0][0]}")
                 total_chairs.append(int(sillas[0][0]))
             
+            # verificar que la cantidad de personas de la reserva sea menor o igual a la capacidad de las mesas seleccionadas
             print(f"TOTAL SILLAS: {sum(total_chairs)} y PERSONAS: {int(reserva['data']['number_of_people'])}")
             if sum(total_chairs) < int(reserva['data']['number_of_people']):
                 print("Codigo: 400. Reserva no creada, eligio mal las mesas ya que le faltarian sillas.")
@@ -145,32 +160,35 @@ def editar_reserva_callback(message):
             
             usar_bd_sin_return(f"UPDATE Reservations SET \
                     Number_Of_People = {reserva['data']['number_of_people']}, \
-                    Date_Reserved = '{reserva['data'['reservation_date']]}', \
+                    Date_Reserved = '{reserva['data']['reservation_date']}', \
                     Start_Time = '{reserva['data']['start_time']}', \
                     End_Time = '{end_reservation_time}' \
                     WHERE Reservation_ID = {reserva['data']['reservation_id']} AND User_ID = '{reserva['data']['username']}'")
 
+            print("Reserva actualizada")
+
             for table in reserva['data']['selected_tables']:
+                # actualizar la tabla de disponibilidad de mesas
                 usar_bd_sin_return(f"DELETE FROM Table_Availability \
-                        WHERE Table_Number = {table} \
-                        AND Date_Reserved = '{reserva['data']['reservation_date']}' \
-                        AND Start_Time = '{reserva['data']['start_time']}' \
-                        AND End_Time = '{end_reservation_time}'")
+                        WHERE Table_ID = {table} \
+                        AND Date_Reserved = '{old_date}' \
+                        AND Start_Time = '{old_start_time}' \
+                        AND End_Time = '{sumar_hora(old_start_time)}'")
                 
                 usar_bd_sin_return(f"INSERT INTO Table_Availability (Table_ID, Date_Reserved, Start_Time, End_Time) \
                         VALUES ({table}, '{reserva['data']['reservation_date']}', '{reserva['data']['start_time']}', '{end_reservation_time}')")
                 
+                # actualizar la tabla de asociacion de mesas con reservas
                 usar_bd_sin_return(f"DELETE FROM Reservation_Tables_Association \
                                    WHERE Reservation_ID = {reserva['data']['reservation_id']} \
                                    AND Table_ID = {table}")
                 
                 usar_bd_sin_return(f"INSERT INTO Reservation_Tables_Association (Reservation_ID, Table_ID) \
                                    VALUES ({reserva['data']['reservation_id']}, {table})")
-                
 
-
+            print("Mesas actualizadas")
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"Codigo: 500. Error: {e}")
 
 # entry point de la cloud function
 def editar_reserva(event, context):

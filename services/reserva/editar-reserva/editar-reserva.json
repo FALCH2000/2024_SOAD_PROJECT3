@@ -2,9 +2,9 @@
     "data": {
         "method" : "editar-reserva",
         "username" : "client1",
-        "number_of_people": "7",
         "reservation_id" : "1",
-        "reservation_date" : "2020-12-12",
+        "number_of_people": "7",
+        "reservation_date" : "2031-12-12",
         "start_time" : "10:30:00",
         "selected_tables": [
             1,
