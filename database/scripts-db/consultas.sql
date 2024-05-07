@@ -12,7 +12,35 @@ FROM Food f
 INNER JOIN Food_Type_Association fta ON f.ID = fta.Food_ID
 INNER JOIN Food_Type ft ON fta.Type_ID = ft.ID;
 
+-- Consulta para saber los postres con ID y Nombre
+SELECT ID, Name
+FROM Food
+WHERE ID IN (
+    SELECT Food_ID
+    FROM Food_Type_Association
+    WHERE Type_ID = (SELECT ID FROM Food_Type WHERE Name = 'Dessert')
+);
+
+-- Consulta para saber las bebidas con ID y Nombre
+SELECT ID, Name
+FROM Food
+WHERE ID IN (
+    SELECT Food_ID
+    FROM Food_Type_Association
+    WHERE Type_ID = (SELECT ID FROM Food_Type WHERE Name = 'Drink')
+);
+
+-- Consulta para saber los platos principales con ID y Nombre
+SELECT ID, Name
+FROM Food
+WHERE ID IN (
+    SELECT Food_ID
+    FROM Food_Type_Association
+    WHERE Type_ID = (SELECT ID FROM Food_Type WHERE Name = 'MainCourse')
+);
+
 -- Consulta para saber las recomendaciones de comida segun el nombre de solo 1 comida
+-- Si pongo una comida que no existe en la BD, no devuelve NADA
 DECLARE @FoodName NVARCHAR(50) = 'Pizza Margarita';
 
 -- Subconsulta para obtener el ID del plato basándose en su nombre
@@ -38,6 +66,8 @@ WHERE
     R.Main_Dish_ID = @FoodID OR R.Drink_ID = @FoodID OR R.Dessert_ID = @FoodID;
 
 -- Consulta para saber las recomendaciones de comida segun el nombre de 2 comidas
+-- En la segunda comida si paso un nombre que no esta asociado pero si existe como comida, da un
+-- resultado default (el de la tercera comida asociada)
 DECLARE @Food1 NVARCHAR(50) = 'Pizza Margarita'; -- Nombre de la primera comida
 DECLARE @Food2 NVARCHAR(50) = 'Mojito'; -- Nombre de la segunda comida
 

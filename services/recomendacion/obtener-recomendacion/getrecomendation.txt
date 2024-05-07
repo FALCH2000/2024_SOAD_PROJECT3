@@ -1,0 +1,10 @@
+La url recibe dos ids de foods
+
+En el caso de 1:
+https://us-central1-groovy-rope-416616.cloudfunctions.net/obtener-recomendacion/?dish1=1
+
+En el caso de 2:
+https://us-central1-groovy-rope-416616.cloudfunctions.net/obtener-recomendacion/?dish1=1&dish2=41
+
+
+Ese id se puede obtener desde lo obtenido en obtener menu
