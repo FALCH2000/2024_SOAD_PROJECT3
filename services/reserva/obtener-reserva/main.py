@@ -1,10 +1,9 @@
 import sqlalchemy
 from google.cloud.sql.connector import Connector
 import json
-from google.cloud import pubsub_v1
+import datetime
+import pytz
 
-# Configura el cliente de Pub/Sub
-subscriber = pubsub_v1.SubscriberClient()
 
 # Obtains all data from database
 def getconn():
@@ -26,6 +25,7 @@ def get_engine():
     )
     return pool
 
+
 # Test function to test connection to database
 def usar_bd(solicitud):
     conn = get_engine().connect()
@@ -37,23 +37,126 @@ def usar_bd(solicitud):
     conn.close()
     return data  # Return the captured data
 
-def obtener_reserva_callback(message):
-    # Procesa el mensaje recibido
-    reservaporobtener = message.data.decode('utf-8')
 
-    # convertir el mensaje a un diccionario
-    reservaporobtener = json.loads(reservaporobtener)
-
-    # json de respuesta
+def obtener_todas_reservas():
+    query = "SELECT * FROM Reservations;"
+    result = usar_bd(query)
     mensaje = {}
+    mensaje["data"] = []
+    for elem in result:
+        mensaje["data"].append({
+            "Reservation_ID": elem[0],
+            "User_ID": elem[1],
+            "Number_Of_People": elem[2],
+            "Date_Reserved": elem[3].strftime('%Y-%m-%d'),  # Convertir a cadena de texto en formato 'YYYY-MM-DD'
+            "Start_Time": elem[4].strftime('%H:%M:%S'),    # Convertir a cadena de texto en formato 'HH:MM:SS'
+            "End_Time": elem[5].strftime('%H:%M:%S')       # Convertir a cadena de texto en formato 'HH:MM:SS'
+        })
 
-def obtener_reserva(event, context):
-    # Nombre de la suscripción a la que te quieres suscribir
-    subscription_path = 'projects/groovy-rope-416616/subscriptions/obtener-reserva'
+    result_json = json.dumps(mensaje)
+    return result_json
 
-    # Suscribirse al tema
-    future = subscriber.subscribe(subscription_path, callback=obtener_reserva_callback)
-    print(f"Suscripto a la suscripción {subscription_path}")
+def obtener_reservas_pasadas(fecha,hora):
+    # La query debe usar fecha y hora para obtener las reservas pasadas
+    query = f"SELECT * FROM Reservations WHERE Date_Reserved < '{fecha}' OR Date_Reserved = '{fecha}' AND Start_Time < '{hora}';"
+    result = usar_bd(query)
+    mensaje = {}
+    mensaje["data"] = []
+    for elem in result:
+        mensaje["data"].append({
+            "Reservation_ID": elem[0],
+            "User_ID": elem[1],
+            "Number_Of_People": elem[2],
+            "Date_Reserved": elem[3].strftime('%Y-%m-%d'),  # Convertir a cadena de texto en formato 'YYYY-MM-DD'
+            "Start_Time": elem[4].strftime('%H:%M:%S'),    # Convertir a cadena de texto en formato 'HH:MM:SS'
+            "End_Time": elem[5].strftime('%H:%M:%S')       # Convertir a cadena de texto en formato 'HH:MM:SS'
+        })
 
-    # Mantener la función en ejecución
-    future.result()
+    result_json = json.dumps(mensaje)
+    return result_json
+    
+
+def obtener_reservas_futuras(fecha,hora):
+    query = f"SELECT * FROM Reservations WHERE Date_Reserved = '{fecha}' AND Start_Time > '{hora}' OR Date_Reserved > '{fecha}';"
+    result = usar_bd(query)
+    mensaje = {}
+    mensaje["data"] = []
+    for elem in result:
+        mensaje["data"].append({
+            "Reservation_ID": elem[0],
+            "User_ID": elem[1],
+            "Number_Of_People": elem[2],
+            "Date_Reserved": elem[3].strftime('%Y-%m-%d'),  # Convertir a cadena de texto en formato 'YYYY-MM-DD'
+            "Start_Time": elem[4].strftime('%H:%M:%S'),    # Convertir a cadena de texto en formato 'HH:MM:SS'
+            "End_Time": elem[5].strftime('%H:%M:%S')       # Convertir a cadena de texto en formato 'HH:MM:SS'
+        })
+
+    result_json = json.dumps(mensaje)
+    return result_json
+
+
+def obtener_reservas(request):
+    # Set CORS headers for the preflight request
+    if request.method == "OPTIONS":
+        # Allows GET requests from any origin with the Content-Type
+        # header and caches preflight response for an 3600s
+        headers = {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Max-Age": "3600",
+        }
+
+        return ("", 204, headers)
+
+    request_args = request.args
+    path = request.path
+    respuesta = {}
+
+    # Set CORS headers for main requests
+    headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": "true",
+    }
+
+    # Definir la zona horaria US-Central
+    us_central_tz = pytz.timezone('US/Central')
+
+    # Obtener la hora actual en la zona horaria US-Central
+    hora_actual_us_central = datetime.datetime.now(us_central_tz)
+
+    # Convertir a la zona horaria de Arizona
+    zona_horaria_arizona = pytz.timezone('US/Arizona')
+    hora_actual_arizona = hora_actual_us_central.astimezone(zona_horaria_arizona)
+
+    hora_actual = hora_actual_us_central.strftime('%H:%M:%S')
+    fecha_actual = hora_actual_us_central.strftime('%Y-%m-%d')
+
+    print("Hora actual en US-Central (Texas):", hora_actual_us_central)
+    print("Hora actual en Arizona:", hora_actual_arizona)
+
+
+    validate = (request_args.get("time") != "" and request_args.get("time") is not None)
+
+    if not validate:
+        respuesta["message"] = "Error: Peticion incorrecta"
+        return (json.dumps(respuesta), 400, headers)
+
+    
+    if path == "/" and request.method == 'GET' and "time" in request_args:
+        tiempo = request_args.get("time")
+        
+        validate2 = (request_args.get("user_id") != "" and request_args.get("user_id") is not None)
+
+        if tiempo == "all":
+            return (obtener_todas_reservas(), 200, headers)
+        elif tiempo == "pasadas":
+            return (obtener_reservas_pasadas(fecha_actual,hora_actual),200, headers)
+        elif tiempo == "futuras":
+            return (obtener_reservas_futuras(fecha_actual,hora_actual),200, headers)
+        else:
+            respuesta["message"] = "Error: Peticion incorrecta"
+            return (json.dumps(respuesta), 400, headers)
+    else:
+        respuesta["message"] = "Error: Método no válido."
+        return (json.dumps(respuesta), 404, headers)
