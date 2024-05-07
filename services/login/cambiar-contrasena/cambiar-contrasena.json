@@ -1,0 +1,6 @@
+{
+    "data": {
+        "username" : "client1",
+        "new_password" : "cifrado con sha256"
+    }
+}

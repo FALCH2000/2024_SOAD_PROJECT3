@@ -1,0 +1,11 @@
+{
+    "data" : {
+        "usernaname" : "client2",
+        "password" : "password",
+        "first_name" : "John",
+        "last_name1" : "Doe",
+        "last_name2" : "Smith",
+        "security_question" : "What is your favorite color?",
+        "security_answer" : "Blue"
+    }
+}
