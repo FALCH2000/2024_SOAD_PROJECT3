@@ -10,6 +10,7 @@ import hashlib
 # REVISAR SCRIPT DE CREACION DE LA BASE DE DATOS ANTES DE PROGRAMAR CUALQUIER QUERY
 # Este metodo utiliza pub/sub, y por ello no es igual a un metodo REST
 # Este metodo se encarga de cambiar la contrasena de un usuario al cual se le olvido su contrasena actual
+# No devuelve nada, pero imprime en consola el resultado de la operacion
 
 
 # Configura el cliente de Pub/Sub
@@ -63,9 +64,9 @@ def encriptar_texto(texto):
     hash_obj.update(texto_codificado)
     
     # Obtiene el hash en formato hexadecimal
-    hash_en_hexadecimal = hash_obj.hexdigest()
+    hash_str_hexadecimal = str(hash_obj.hexdigest())
     
-    return hash_en_hexadecimal
+    return hash_str_hexadecimal
 
 def cambiar_contrasena_callback(message):
     request = message.data.decode('utf-8')
@@ -86,8 +87,8 @@ def cambiar_contrasena_callback(message):
             
             # Verify is the user answered correctly the security question
             stored_security_answer = usar_bd(f"SELECT Security_Answer FROM User_ WHERE Username = '{request['username']}'")
-
-            current_answer_encrypted = request['security_answer'].encriptar_texto()
+            
+            current_answer_encrypted = encriptar_texto(request['security_answer'])
 
             if stored_security_answer[0][0] != current_answer_encrypted:
                 print(f"Codigo: 400. La respuesta de seguridad es incorrecta.")
@@ -104,9 +105,9 @@ def cambiar_contrasena_callback(message):
 
 def cambiar_contrasena(event, context):
     # Nombre de la suscripcion a la que te quieres suscribir
-    subscription_path = 'projects/groovy-rope-416616/subscriptions/cambiar-contrasena'
+    subscription_path = 'projects/groovy-rope-416616/subscriptions/restablecer-password'
 
-    # Suscribirse al tema
+    # Suscribirse
     future = subscriber.subscribe(subscription_path, callback=cambiar_contrasena_callback)
     print(f"Suscrito a la suscripción {subscription_path}")
 
