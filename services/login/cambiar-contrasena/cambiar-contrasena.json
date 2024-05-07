@@ -1,6 +1,8 @@
 {
     "data": {
+        "method" : "cambiar-contrasena",
         "username" : "client1",
-        "new_password" : "cifrado con sha256"
+        "new_password" : "cifrado con sha256",
+        "security_answer" : "Manzana"
     }
 }
