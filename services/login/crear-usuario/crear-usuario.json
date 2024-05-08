@@ -1,10 +1,11 @@
 {
     "data" : {
-        "usernaname" : "client2",
-        "password" : "password",
-        "first_name" : "John",
-        "last_name1" : "Doe",
-        "last_name2" : "Smith",
+        "method" : "crear-usuario",
+        "username" : "client2",
+        "password" : "hola",
+        "first_name" : "Pepe",
+        "last_name1" : "Rodriguez",
+        "last_name2" : "Gonzalez",
         "security_question" : "What is your favorite color?",
         "security_answer" : "Blue"
     }

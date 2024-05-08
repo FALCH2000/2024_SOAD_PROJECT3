@@ -116,7 +116,7 @@ VALUES (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (5, 8); -- Reservation 5 uses tab
 
 -- Insert Restaurant Information
 INSERT INTO Restaurant_Data (Opening_Time, Closing_Time, Local_Location)
-VALUES ('08:00:00', '23:00:00', 'Barrio Escalante');
+VALUES ('12:00:00', '20:00:00', 'Barrio Escalante');
 
 -- Insert data into Recommendation table
 -- Obtener los IDs de los platos principales, bebidas y postres

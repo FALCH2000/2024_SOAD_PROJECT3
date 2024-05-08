@@ -105,7 +105,7 @@ def cambiar_contrasena_callback(message):
 
 def cambiar_contrasena(event, context):
     # Nombre de la suscripcion a la que te quieres suscribir
-    subscription_path = 'projects/groovy-rope-416616/subscriptions/restablecer-password'
+    subscription_path = "projects/groovy-rope-416616/subscriptions/restablecer-password"
 
     # Suscribirse
     future = subscriber.subscribe(subscription_path, callback=cambiar_contrasena_callback)
