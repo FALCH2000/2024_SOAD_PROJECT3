@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ChatbotService } from '../services/chatbot.service';
 
 @Component({
   selector: 'app-feedback',
@@ -7,4 +8,20 @@ import { Component } from '@angular/core';
 })
 export class FeedbackComponent {
 
+  constructor(private chatbot:ChatbotService) {
+    }
+
+    allMessages: any[] = [];
+    newMessage: string = '';
+
+  sendMessage() {
+      const message = this.newMessage;
+      this.chatbot.chatMessage(message).subscribe((response:any) => {
+          
+          this.allMessages.push({message, isUser: true});
+          this.allMessages.push({message: response.data, isUser: false});
+          console.log(response);
+      });
+      this.newMessage = '';
+  }
 }
