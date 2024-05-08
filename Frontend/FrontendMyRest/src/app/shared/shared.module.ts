@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { HttpClientModule } from '@angular/common/http';
+import { MatDialogModule } from '@angular/material/dialog';
 
 
 @NgModule({
@@ -13,13 +14,15 @@ import { HttpClientModule } from '@angular/common/http';
     MatButtonModule,
     FormsModule,
     MatInputModule,
-    HttpClientModule
+    HttpClientModule,
+    MatDialogModule,
   ],
   exports: [
     CommonModule,
     MatButtonModule,
     FormsModule,
-    MatInputModule
+    MatInputModule,
+    MatDialogModule,
   ]
 })
 export class SharedModule { }

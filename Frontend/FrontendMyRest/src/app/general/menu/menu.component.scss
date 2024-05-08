@@ -10,6 +10,7 @@ body {
 }
 
 .container-sm { 
+  position: relative;
     background-color: #ab722c;
     width: 600px;
     margin: auto;
@@ -21,6 +22,23 @@ body {
 			-moz-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
+.container.recommendation {
+  background-color: #ab722c;
+    width: 350px;
+    text-align: center;
+    border-radius: 3%;
+    color: white;
+    padding: 20px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+			-webkit-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+			-moz-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    
+}
+
+volver-menu {
+  align-self: center;
+  margin: auto;
+}
 .menu-title {
     font-family: system-ui, -apple-system, BlinkMacSystemFont;
     font-weight: 400;

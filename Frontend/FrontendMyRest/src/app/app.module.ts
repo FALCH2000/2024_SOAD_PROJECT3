@@ -9,6 +9,8 @@ import {MatInputModule} from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { HomepageComponent } from './homepage/homepage.component'; 
 import { AuthenticationModule } from './authentication/authentication.module';
+import { GeneralModule } from './general/general.module';
+import { SharedModule } from './shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -19,7 +21,9 @@ import { AuthenticationModule } from './authentication/authentication.module';
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    AuthenticationModule
+    AuthenticationModule,
+    GeneralModule,
+    SharedModule
   ],
   providers: [],
   bootstrap: [AppComponent]

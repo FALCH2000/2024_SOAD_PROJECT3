@@ -21,6 +21,8 @@ export class MenuComponent {
   cantidadComidas: string = "1";
   requestDone:boolean = false;
   message:string = "";
+  recommendation: string[] = [];
+  recommendationEmpty: boolean = false;
 
   constructor(private menuService:MenuService, private http: HttpClient) { }
 
@@ -64,22 +66,17 @@ export class MenuComponent {
         this.selectedItems = [];
 
         alert("No puedes enviar mas de 1 seleccion de comida.")
-      } else if(Object.keys(this.selectedItems).length < 2){
+      } else if(Object.keys(this.selectedItems).length < 1){
         alert("Debes seleccionar 1 comida.")
       }else {
-        // Enviar selección
+        // Enviar selección para 1 comida
         var request = "";
-
         var item = this.selectedItems[0];
-        request += "MealName1="+item.id;
-        
-
+        request += "dish1="+item.id;
         console.log(request)
         this.hacerConsulta(request);
-        console.log()
       }
     } else if (this.cantidadComidas === "2") {
-      console.log("esteetet")
       if (Object.keys(this.selectedItems).length > 2) {
         // Deseleccionar todos los elementos checkbox
         const checkboxes = Array.from(document.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'));
@@ -90,20 +87,19 @@ export class MenuComponent {
         // Vaciar la lista selectedItems
         this.selectedItems = [];
 
-        alert("No puedes enviar mas de 2 seleccion2s de comida.")
+        alert("No puedes enviar mas de 2 selecciones de comida.")
       } else if(Object.keys(this.selectedItems).length < 2){
         alert("Debes seleccionar 2 comidas.")
       }else {
-        // Enviar selección
+        // Enviar selección para 2 comidas
         var request = "";
         
         var item = this.selectedItems[0];
-        request += "MealName1="+item.id;
+        request += "dish1="+item.id;
 
         var item2 = this.selectedItems[1];
-        request += "&MealName2="+item2.id;
+        request += "&dish2="+item2.id;
 
-        console.log(request)
         this.hacerConsulta(request);
       }
     }
@@ -112,8 +108,48 @@ export class MenuComponent {
   }
 
   hacerConsulta(entry:string){
-    console.log("haciendo consulta");
+    console.log("Haciendo consulta...");
+    console.log(entry);
 
+    this.menuService.getRecomendacion(entry).subscribe((data:any)=>{
+      if(typeof data.data === 'string' ){
+        // Desplegar que no hay recomendaciones disponivbles
+        this.recommendationEmpty = true
+        console.log("No hay recomendaciones")
+      }else{
+        // Desplegar recomendaciones
+        this.recommendationEmpty = false
+        const recomendaciones = data.data;
+        console.log(recomendaciones);
+        Object.keys(recomendaciones).forEach((key) => {
+          const valorItem:any = recomendaciones[key];          
+          this.recommendation.push(valorItem);
+          
+        });
+      }
+      this.requestDone = true;
+      
+    }) 
+  }
+
+  volverMenu(){
+    this.borrarData();
+    this.requestDone = false;
+    this.recommendation = [];
+    this.recommendationEmpty = false
+  }
+
+  borrarData(){
+    
+    // Deseleccionar todos los elementos checkbox
+    const checkboxes = Array.from(document.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'));
+    checkboxes.forEach((checkbox: HTMLInputElement) => {
+      checkbox.checked = false;
+    });
+
+    // Vaciar la lista selectedItems
+    this.selectedItems = [];
+    
     
   }
 }
