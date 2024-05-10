@@ -59,22 +59,30 @@ def encriptar_texto(texto):
     hash_str_hexadecimal = str(hash_obj.hexdigest())
     return hash_str_hexadecimal
 
-def obtener_usuario_callback(username, password):
+def obtener_usuario_callback(username, password, headers):
+    print("BREAKPOINT 0 PARA OBTENER USUARIO")
+
     respuesta = {}
     if username == "":
         respuesta["status"] = 400
         respuesta["message"] = "Error: No se ha ingresado un username."
-        return respuesta
+        return (respuesta["message"], respuesta["status"], headers)
+    
     encrypted_password = encriptar_texto(password)
+
+    print("BREAKPOINT 1 PARA OBTENER USUARIO")
+
     # Obtener datos del usuario
-    user = usar_bd(F"SELECT * FROM User_ WHERE Username = '{username}' and {encrypted_password}")
+    user = usar_bd(F"SELECT * FROM User_ WHERE Username = '{username}' and Encrypted_Password = '{encrypted_password}'")
     
     if user == []:
         respuesta["status"] = 404
         respuesta["message"] = "Error: Usuario no encontrado."
         respuesta["token"] = ""
-        return respuesta
-    
+        return (respuesta["message"], respuesta["status"], headers)
+
+    print("BREAKPOINT 2 PARA OBTENER USUARIO")
+
     token = jwt.encode(
         payload={
             "user": username,
@@ -83,13 +91,16 @@ def obtener_usuario_callback(username, password):
         },
         key=secret_key
     )
+
+    print("BREAKPOINT 3 PARA OBTENER USUARIO")
+
     respuesta["status"] = 200
 
     respuesta["message"] = "Usuario encontrado."
 
     respuesta["token"] = token
 
-    return json.dumps(respuesta)
+    return (respuesta["token"], respuesta["status"], headers)
 
 # entry point de la cloud function
 def obtener_usuario(request):
@@ -112,14 +123,19 @@ def obtener_usuario(request):
     path = (request.path)
     respuesta = {}
     print(request_args)
+
     # Set CORS headers for main requests
     headers = {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Credentials": "true",
     }
 
+    print("BREAKPOINT ENTRY POINT PARA OBTENER USUARIO")
+
     if path == "/" and request.method == 'GET' and request_args.get('username') != "" and  request_args.get('password') != "":
-        return (obtener_usuario_callback(request_args('username'),request_args('password')),200,headers)
+        #return obtener_usuario_callback(request_args('username'),request_args('password'), headers)
+        return obtener_usuario_callback(request_args['username'], request_args['password'], headers)
+
     else:
         respuesta["status"] = 404
         respuesta["message"] = f"Error: Método no válido."
