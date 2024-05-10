@@ -8,6 +8,7 @@ import hashlib
 
 #Secret key to validate tokens
 secret_key="6af00dfe63f6495195a3341ef6406c2c" 
+
 # REVISAR SCRIPT DE CREACION DE LA BASE DE DATOS ANTES DE PROGRAMAR CUALQUIER QUERY
 # Este metodo es REST y al ser de tipo GET por ende si devuelve algo
 
@@ -60,7 +61,7 @@ def encriptar_texto(texto):
     return hash_str_hexadecimal
 
 def obtener_usuario_callback(username, password, headers):
-    print("BREAKPOINT 0 PARA OBTENER USUARIO")
+    print("Verificando request")
 
     respuesta = {}
     if username == "":
@@ -69,8 +70,6 @@ def obtener_usuario_callback(username, password, headers):
         return (respuesta["message"], respuesta["status"], headers)
     
     encrypted_password = encriptar_texto(password)
-
-    print("BREAKPOINT 1 PARA OBTENER USUARIO")
 
     # Obtener datos del usuario
     user = usar_bd(F"SELECT * FROM User_ WHERE Username = '{username}' and Encrypted_Password = '{encrypted_password}'")
@@ -81,22 +80,25 @@ def obtener_usuario_callback(username, password, headers):
         respuesta["token"] = ""
         return (respuesta["message"], respuesta["status"], headers)
 
-    print("BREAKPOINT 2 PARA OBTENER USUARIO")
+    print("El usuario si existe. Se procedera a generar el token del usuario: ", username)
+
+    # Calcular la fecha de expiración como un entero de tiempo Unix en segundos
+    exp_timestamp = int((datetime.now(timezone.utc) + timedelta(seconds=600)).timestamp())
 
     token = jwt.encode(
         payload={
             "user": username,
             "password": password,
-            "exp": str(datetime.now(timezone.utc)+ timedelta(seconds= 600))
+            "exp": exp_timestamp
         },
         key=secret_key
     )
 
-    print("BREAKPOINT 3 PARA OBTENER USUARIO")
+    print("Token generado correctamente")
 
     respuesta["status"] = 200
 
-    respuesta["message"] = "Usuario encontrado."
+    respuesta["message"] = "Usuario encontrado y token generado."
 
     respuesta["token"] = token
 
