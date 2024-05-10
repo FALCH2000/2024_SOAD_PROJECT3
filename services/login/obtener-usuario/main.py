@@ -67,7 +67,7 @@ def obtener_usuario_callback(username, password, headers):
     if username == "":
         respuesta["status"] = 400
         respuesta["message"] = "Error: No se ha ingresado un username."
-        return (respuesta["message"], respuesta["status"], headers)
+        return (json.dumps(respuesta), respuesta["status"], headers)
     
     encrypted_password = encriptar_texto(password)
 
@@ -78,7 +78,7 @@ def obtener_usuario_callback(username, password, headers):
         respuesta["status"] = 404
         respuesta["message"] = "Error: Usuario no encontrado."
         respuesta["token"] = ""
-        return (respuesta["message"], respuesta["status"], headers)
+        return (json.dumps(respuesta), respuesta["status"], headers)
 
     print("El usuario si existe. Se procedera a generar el token del usuario: ", username)
 
@@ -87,7 +87,7 @@ def obtener_usuario_callback(username, password, headers):
 
     token = jwt.encode(
         payload={
-            "user": username,
+            "username": username,
             "password": password,
             "exp": exp_timestamp
         },
@@ -96,13 +96,11 @@ def obtener_usuario_callback(username, password, headers):
 
     print("Token generado correctamente")
 
+    respuesta["token"] = token
     respuesta["status"] = 200
-
     respuesta["message"] = "Usuario encontrado y token generado."
 
-    respuesta["token"] = token
-
-    return (respuesta["token"], respuesta["status"], headers)
+    return (json.dumps(respuesta), respuesta["status"], headers)
 
 # entry point de la cloud function
 def obtener_usuario(request):
@@ -141,4 +139,4 @@ def obtener_usuario(request):
     else:
         respuesta["status"] = 404
         respuesta["message"] = f"Error: Método no válido."
-        return (f"{json.dumps(respuesta, ensure_ascii=True)}",400,headers)
+        return (f"{json.dumps(respuesta)}",400,headers)
