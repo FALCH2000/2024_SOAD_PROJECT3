@@ -1,9 +1,13 @@
 import sqlalchemy
 from google.cloud.sql.connector import Connector
 import json
-import datetime
+import jwt
+from datetime import datetime, timedelta, timezone
 import pytz
+import hashlib
 
+#Secret key to validate tokens
+secret_key="6af00dfe63f6495195a3341ef6406c2c" 
 # REVISAR SCRIPT DE CREACION DE LA BASE DE DATOS ANTES DE PROGRAMAR CUALQUIER QUERY
 # Este metodo es REST y al ser de tipo GET por ende si devuelve algo
 
@@ -44,27 +48,48 @@ def usar_bd_sin_return(solicitud):
     conn.execute(solicitud)
     conn.close()
 
-def obtener_usuario_callback(username):
-    respuesta = {}
+def encriptar_texto(texto):
+    # Codifica el texto en UTF-8 antes de encriptar
+    texto_codificado = texto.encode('utf-8')
+    # Crea un objeto hash utilizando el algoritmo SHA-256
+    hash_obj = hashlib.sha256()
+    # Actualiza el hash con el texto codificado
+    hash_obj.update(texto_codificado)
+    # Obtiene el hash en formato hexadecimal
+    hash_str_hexadecimal = str(hash_obj.hexdigest())
+    return hash_str_hexadecimal
 
+def obtener_usuario_callback(username, password):
+    respuesta = {}
     if username == "":
         respuesta["status"] = 400
         respuesta["message"] = "Error: No se ha ingresado un username."
         return respuesta
-
+    encrypted_password = encriptar_texto(password)
     # Obtener datos del usuario
-    user = usar_bd(F"SELECT * FROM User_ WHERE Username = '{username}'")
-
+    user = usar_bd(F"SELECT * FROM User_ WHERE Username = '{username}' and {encrypted_password}")
+    
     if user == []:
         respuesta["status"] = 404
         respuesta["message"] = "Error: Usuario no encontrado."
+        respuesta["token"] = ""
         return respuesta
     
+    token = jwt.encode(
+        payload={
+            "user": username,
+            "password": password,
+            "exp": str(datetime.now(timezone.utc)+ timedelta(seconds= 600))
+        },
+        key=secret_key
+    )
     respuesta["status"] = 200
+
     respuesta["message"] = "Usuario encontrado."
 
-    return json.dumps(respuesta)
+    respuesta["token"] = token
 
+    return json.dumps(respuesta)
 
 # entry point de la cloud function
 def obtener_usuario(request):
@@ -86,16 +111,16 @@ def obtener_usuario(request):
     request_args = request.args
     path = (request.path)
     respuesta = {}
-
+    print(request_args)
     # Set CORS headers for main requests
     headers = {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Credentials": "true",
     }
 
-    if path == "/" and request.method == 'GET' and request_args.get('username') != "":
-        return (obtener_usuario_callback(request_args('username')),200,headers)
+    if path == "/" and request.method == 'GET' and request_args.get('username') != "" and  request_args.get('password') != "":
+        return (obtener_usuario_callback(request_args('username'),request_args('password')),200,headers)
     else:
         respuesta["status"] = 404
-        respuesta["message"] = "Error: Método no válido."
-        return (f"{json.dumps(respuesta, ensure_ascii=False)}",404,headers)
+        respuesta["message"] = f"Error: Método no válido."
+        return (f"{json.dumps(respuesta, ensure_ascii=True)}",400,headers)

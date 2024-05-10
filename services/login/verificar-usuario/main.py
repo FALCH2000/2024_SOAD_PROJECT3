@@ -1,9 +1,10 @@
 import sqlalchemy
 from google.cloud.sql.connector import Connector
 import json
-import datetime
+from datetime import datetime, timezone
 import pytz
 import hashlib
+import jwt
 
 # REVISAR SCRIPT DE CREACION DE LA BASE DE DATOS ANTES DE PROGRAMAR CUALQUIER QUERY
 # Este metodo es REST
@@ -59,12 +60,39 @@ def encriptar_texto(texto):
     hash_str_hexadecimal = str(hash_obj.hexdigest())
     
     return hash_str_hexadecimal
+secret_key="6af00dfe63f6495195a3341ef6406c2c" 
+def token_invalido(token):
+    try:
+        token_decoded  = jwt.decode(jwt=token, key=secret_key)
+    except jwt.ExpiredSignatureError:
+        return False
+    
+    
+    
+    pass
+
 
 def verificar_usuario_callback(request):
     respuesta = {}
-    username = request.args.get('username')
-    password = encriptar_texto(request.args.get('password'))
-
+    #verificar el token
+    try:
+        token_decoded  = jwt.decode(jwt=request.args.get('token'), key=secret_key)
+    except jwt.ExpiredSignatureError:
+        respuesta["status"] = 401
+        respuesta["message"] = "Error: EL TOKEN esta expirado!"
+        return json.dumps(respuesta, ensure_ascii=False)
+    except jwt.exceptions.InvalidTokenError as e:
+        respuesta["status"] = 401
+        respuesta["message"] = "Error: EL TOKEN no es valido!"
+        return json.dumps(respuesta, ensure_ascii=False)
+    except Exception as e:
+        respuesta["status"] = 500
+        respuesta["message"] = "Error: procesando el token"
+        return json.dumps(respuesta, ensure_ascii=False)
+    
+    # verificar datos del usuario
+    username = token_decoded['username']
+    password = encriptar_texto(token_decoded['password'])
     if username == "" or password == "":
         respuesta["status"] = 400
         respuesta["message"] = "Error: No se ha ingresado un username o password."
@@ -72,7 +100,6 @@ def verificar_usuario_callback(request):
     
     # Verificar contrasena del usuario
     user = usar_bd(F"SELECT * FROM User_ WHERE Username = '{username}' AND Encrypted_Password = '{password}'")
-
     if user == []:
         respuesta["status"] = 404
         respuesta["message"] = "Error: Usuario no existe o la contrasena es incorrecta."
@@ -80,7 +107,6 @@ def verificar_usuario_callback(request):
 
     respuesta["status"] = 200
     respuesta["message"] = "Usuario encontrado."
-
     return json.dumps(respuesta)
 
 def verificar_usuario(request):
@@ -107,9 +133,9 @@ def verificar_usuario(request):
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Credentials": "true",
     }
-
-    if path == "/" and request.method == 'GET' and request_json is None and not request_args:
-        return (verificar_usuario_callback(request_args('username')),200,headers)
+    #and request_json is None and not request_args
+    if path == "/" and request.method == 'GET':
+        return (verificar_usuario_callback(request_args('token')),200,headers)
     else:
         respuesta["status"] = 404
         respuesta["message"] = "Error: Método no válido."

@@ -52,16 +52,12 @@ def usar_bd_sin_return(solicitud):
 def encriptar_texto(texto):
     # Codifica el texto en UTF-8 antes de encriptar
     texto_codificado = texto.encode('utf-8')
-    
     # Crea un objeto hash utilizando el algoritmo SHA-256
     hash_obj = hashlib.sha256()
-    
     # Actualiza el hash con el texto codificado
     hash_obj.update(texto_codificado)
-    
     # Obtiene el hash en formato hexadecimal
     hash_str_hexadecimal = str(hash_obj.hexdigest())
-    
     return hash_str_hexadecimal
 
 def crear_usuario_callback(message):
