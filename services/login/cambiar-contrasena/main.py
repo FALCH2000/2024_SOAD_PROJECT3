@@ -72,12 +72,11 @@ def cambiar_contrasena_callback(message):
     request = message.data.decode('utf-8')
     request = json.loads(request) # dictionary
     message.ack()
-
     if not all(key in request for key in ['method', 'username', "new_password", "security_answer"]):
         print("Codigo: 400. Faltan atributos en la solicitud para cambiar contrasena.")
         return
     
-    if request['method'] == "cambiar_contrasena":
+    if request['method'] == "cambiar-contrasena":
         try:
             # Verify if the user exists
             user = usar_bd(f"SELECT * FROM User_ WHERE Username = '{request['username']}'")
@@ -87,15 +86,15 @@ def cambiar_contrasena_callback(message):
             
             # Verify is the user answered correctly the security question
             stored_security_answer = usar_bd(f"SELECT Security_Answer FROM User_ WHERE Username = '{request['username']}'")
-            
             current_answer_encrypted = encriptar_texto(request['security_answer'])
-
+            
             if stored_security_answer[0][0] != current_answer_encrypted:
+                print("Could not verify security Awnsers")
                 print(f"Codigo: 400. La respuesta de seguridad es incorrecta.")
                 return
-
+            
             # Update the user's password
-            usar_bd_sin_return(f"UPDATE User_ SET Encrypted_Password = '{request['new_password']}' \
+            usar_bd_sin_return(f"UPDATE User_ SET Encrypted_Password = '{encriptar_texto(request['new_password'])}' \
                                WHERE username = '{request['username']}'")
             
             print(f"Codigo: 200. Se ha cambiado la contrasena del usuario {request['username']} exitosamente.")
