@@ -2,6 +2,8 @@ import sqlalchemy
 from google.cloud.sql.connector import Connector
 import json
 from google.cloud import pubsub_v1
+import jwt
+import requests
 
 # Configura el cliente de Pub/Sub
 subscriber = pubsub_v1.SubscriberClient()
@@ -76,6 +78,10 @@ def hora1_menor_hora2(hora1, hora2):
     else:
         return False
 
+def publicar_mensaje(respuesta):
+    print(f"Publicando mensaje: {respuesta}")
+
+secret_key="6af00dfe63f6495195a3341ef6406c2c"
 def crear_reserva_callback(message):
     # Procesa el mensaje recibido
     reserva = message.data.decode('utf-8')
@@ -84,14 +90,32 @@ def crear_reserva_callback(message):
     reserva = json.loads(reserva)
     message.ack()
 
+    respuesta = {}
+
+    # CAMBIAR EL FINAL DE LA URL
+    url = f"https://us-central1-groovy-rope-416616.cloudfunctions.net/verificar-usuario/?token={reserva['token']}"
+
+    response = requests.get(url)
+    if response.status_code == 200:
+        print("Codigo: 200. Token valido")
+        print(response.json())
+        print(f"Token: {reserva['token']}")
+        token_decoded  = jwt.decode(jwt=reserva['token'], key=secret_key, algorithms=["HS256"])
+    else:
+        print("Codigo: 400. Token invalido")
+        publicar_mensaje("Codigo: 400. Token invalido")
+        return
+
     # revisar que reserva tenga los atributos correctos, la cantidad de atributos y que no estén vacíos
-    if not all(key in reserva['data'] for key in ['method', 'username', 'number_of_people', 'reservation_date', 'start_time', 'selected_tables']):
+    if not all(key in reserva['data'] for key in ['method', 'number_of_people', 'reservation_date', 'start_time', 'selected_tables']):
         print("Codigo: 400. Faltan atributos en la solicitud")
 
     elif reserva['data']['method'] == "crear-reserva":
         try: 
             # TODO: verificar que haya disponibilidad de las mesas en la fecha y hora solicitada
             # for
+            # verificar datos del usuario
+            username = token_decoded['username']
 
             # verificar que la cantidad de personas de la reserva sea menor o igual a la capacidad de las mesas seleccionadas
             total_chairs = []
@@ -117,6 +141,8 @@ def crear_reserva_callback(message):
             if after_aperture_time == False or before_closing_time == False:
                 print("Codigo: 400. Las horas de la potencial reserva no estan dentro del horario de atencion del restaurante")
                 return
+            
+            reserva['data']['username'] = username
 
             insert_into_db(f"INSERT INTO Reservations (User_ID, Number_Of_People, Date_Reserved, Start_Time, End_Time)\
                     VALUES ('{reserva['data']['username']}', \
@@ -144,12 +170,17 @@ def crear_reserva_callback(message):
                                         {table})")
 
             print("Codigo: 200, Reserva creada con éxito")
+            publicar_mensaje("Codigo: 200, Reserva creada con éxito")
+            return
 
         except Exception as e:
             print(f"Codigo: 500. Error al crear la reserva: {str(e)}")
-    
+            publicar_mensaje(f"Codigo: 500. Error al crear la reserva: {str(e)}") 
+            return
     else:
         print("Codigo: 400. Metodo no soportado")
+        publicar_mensaje("Codigo: 400. Metodo no soportado")
+        return
 
 
 # entry point de la cloud function
