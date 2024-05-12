@@ -69,10 +69,10 @@ def obtener_usuario_callback(username, password, headers):
         respuesta["message"] = "Error: No se ha ingresado un username."
         return (json.dumps(respuesta), respuesta["status"], headers)
     
-    encrypted_password = encriptar_texto(password)
+    #encrypted_password = encriptar_texto(password)
 
     # Obtener datos del usuario
-    user = usar_bd(F"SELECT * FROM User_ WHERE Username = '{username}' and Encrypted_Password = '{encrypted_password}'")
+    user = usar_bd(F"SELECT * FROM User_ WHERE Username = '{username}' and Encrypted_Password = '{password}'")
     
     if user == []:
         respuesta["status"] = 404
@@ -86,7 +86,7 @@ def obtener_usuario_callback(username, password, headers):
     exp_timestamp = int((datetime.now(timezone.utc) + timedelta(seconds=600)).timestamp())
 
     token = jwt.encode(
-        payload={
+        payload={  # 
             "username": username,
             "password": password,
             "exp": exp_timestamp

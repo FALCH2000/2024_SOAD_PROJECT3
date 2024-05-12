@@ -33,7 +33,7 @@ def usar_bd(solicitud):
     conn.close()
     return data  # Return the captured data
 
-def obtener_calendario_callback(date_request, start_time_request):
+def obtener_calendario_callback(date_request, start_time_request, headers):
     # json de respuesta
     mensaje = {}
     mensaje['data'] = {}
@@ -42,6 +42,9 @@ def obtener_calendario_callback(date_request, start_time_request):
     # Obtener todas las mesas disponibles para una fecha y hora especifica
 
     try:
+        print("Date request: " + date_request)
+        print("Start time request: " + start_time_request)
+
         # obtener todas las mesas
         mesas = usar_bd("SELECT * FROM Tables")
 
@@ -70,17 +73,28 @@ def obtener_calendario_callback(date_request, start_time_request):
             else: # si la suma es mayor a 24
                 end_time = "00" + start_time_request[2:]
 
-        print("End time print: " + end_time)
-        print(" ")
+        print("End time  " + end_time)
 
         mesas_ocupadas = usar_bd(f"SELECT * FROM Table_Availability WHERE Date_Reserved = '{date_request}' AND Start_Time >= '{start_time_request}' AND End_Time <= '{end_time}'")
         
+        # cuando todas las mesas estan ocupadas, no hay mesas disponibles
+        # esto puede pasar en eventos especiales
+        if len(mesas_ocupadas) == len(mesas):
+            print("No hay mesas disponibles para la fecha y hora solicitada.")
+            mensaje['data']['available_tables'] = []
+            mensaje['status'] = 404
+            mensaje['message'] = "No hay mesas disponibles para la fecha y hora solicitada."
+            return (json.dumps(mensaje), mensaje['status'], headers)
+
         # cuando no hay mesas ocupadas
         if len(mesas_ocupadas) == 0:
+            print("Todas las mesas estan disponibles para la fecha y hora solicitada")
             for mesa in mesas:
-                mensaje['available_tables'].append({"Table_ID": mesa[0], "Chairs" : mesa[1]})
+                print("Dentro del for")
+                print("MESA: ", mesa)
+                mensaje['data']['available_tables'].append({"Table_ID": mesa[0], "Chairs" : mesa[1]})
         else:
-            print("Hay mesas ocupadas")
+            print("Hay algunas mesas ocupadas para la fecha y hora solicitada")
             # cuando si hay mesas ocupadas
             for mesa in mesas:
                 busy_table = True
@@ -94,7 +108,7 @@ def obtener_calendario_callback(date_request, start_time_request):
 
  
         mensaje['status'] = 200
-        mensaje['message'] = "Calendario obtenido correctamente"
+        mensaje['message'] = "Mesas disponibles obtenidas correctamente."
 
     except Exception as e:
         mensaje['status'] = 500
@@ -103,7 +117,7 @@ def obtener_calendario_callback(date_request, start_time_request):
     # Convertir el mensaje a JSON
     mensaje_json = json.dumps(mensaje)
 
-    return (mensaje_json, mensaje['status'])
+    return (mensaje_json, mensaje['status'], headers)
 
 # entry point de la cloud function
 def obtener_calendario(request):
@@ -133,9 +147,10 @@ def obtener_calendario(request):
     }
     
     if path == "/" and request.method == 'GET' and validate:
-        return obtener_calendario_callback(request_args.get('date'), request_args.get('start_time'))
+        return obtener_calendario_callback(request_args.get('date'), request_args.get('start_time'), headers)
     
     else:
+        respuesta['data']['available_tables'] = []
         respuesta["status"] = 404
         respuesta["message"] = "Error: Método no válido."
-        return f"{json.dumps(respuesta, ensure_ascii=False)}"
+        return (f"{json.dumps(respuesta)}", respuesta["status"], headers)
