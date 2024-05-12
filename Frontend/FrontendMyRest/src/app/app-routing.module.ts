@@ -6,7 +6,8 @@ const routes: Routes = [
   {path: '', redirectTo:'/homepage', pathMatch: 'full'},
   {path: 'homepage', component: HomepageComponent },
   {path: 'auth', loadChildren: () => import('./authentication/authentication.module').then(m => m.AuthenticationModule)},
-  {path: 'general', loadChildren: () => import('./general/general.module').then(m => m.GeneralModule)}
+  {path: 'general', loadChildren: () => import('./general/general.module').then(m => m.GeneralModule)},
+  {path: 'user', loadChildren: () => import('./user/user.module').then(m => m.UserModule)}
 ];
 
 @NgModule({

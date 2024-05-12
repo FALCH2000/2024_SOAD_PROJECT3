@@ -1,0 +1,157 @@
+
+.container {
+    align-items: center;
+    justify-content: center;
+    margin-top: 3%;
+    margin-bottom: 3%;
+  }
+  
+  .container-sm {
+    background-color: #ab722c;
+    width: 700px;
+    margin: auto;
+    border-radius: 3%;
+    color: white;
+    padding: 20px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    -webkit-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    -moz-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  }
+  
+  .menu-title {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont;
+    font-weight: 400;
+    text-align: center;
+    font-size: 37px;
+    margin-bottom: 20px;
+  }
+  
+  .container-options{
+    text-align: center;
+  }
+  
+  button{
+    margin: 10px 0px;
+  }
+  
+  .day-text{
+    font-family: system-ui, -apple-system, BlinkMacSystemFont;
+    font-weight: 400;
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 0px;
+  }
+  
+  .days{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .hours{
+    margin-bottom: -25px;
+    margin-top: -25px;
+  }
+  
+ 
+  .available{
+    font-family: system-ui, -apple-system, BlinkMacSystemFont;
+    font-weight: 400;
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 0;
+  }
+  
+  .inputs{
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .goBack{
+    width: 100%;
+    text-align: center;
+  }
+
+  .dispo{
+    display: flex;
+  }
+
+  .datepicker-container{
+    margin: 10px 20px;
+  }
+
+  .consult-button{
+    height: 58px;
+    font-family:  Roboto,  sans-serif;
+    font-weight: 400;
+    margin: 10px 20px;
+  }
+
+  .container-principal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .button-container {
+    margin-top: 20px; 
+    text-align: center; 
+  }
+  .button-container {
+    margin-top: 20px; 
+    text-align: center; 
+  }
+
+
+  input[type=time] {
+    border: none;
+    color: #2a2c2d;
+    font-size: 14px;
+    font-family: helvetica;
+    width: 180px;
+    margin: 0px 20px;
+    border-radius: 3% 3% 0 0;
+  }
+
+  input[type=time]:hover {
+    border-bottom: 1px solid black;
+  }
+  
+  /* Wrapper around the hour, minute, second, and am/pm fields as well as 
+  the up and down buttons and the 'X' button */
+  input[type=time]::-webkit-datetime-edit-fields-wrapper {
+    display: flex;
+  }
+  
+  /* The space between the fields - between hour and minute, the minute and 
+  second, second and am/pm */
+  input[type=time]::-webkit-datetime-edit-text {
+    padding: 15px 4px;
+  }
+  
+
+  
+  /* Hour */
+  input[type=time]::-webkit-datetime-edit-hour-field {
+    background-color: #f2f4f5;
+    border-radius: 15%;
+    padding: 19px 13px;
+  }
+  
+  /* Minute */
+  input[type=time]::-webkit-datetime-edit-minute-field {
+    background-color: #f2f4f5;
+    border-radius: 15%;
+    padding: 19px 13px;
+  }
+  
+  
+  /* 'X' button for resetting/clearing time */
+  input[type=time]::-webkit-clear-button {
+    display: none;
+  }
+  
+  /* Up/Down arrows for incrementing/decrementing the value */
+  input[type=time]::-webkit-inner-spin-button {
+    display: none;
+  }
