@@ -3,12 +3,12 @@
 
 CREATE TABLE Food (
     ID INT IDENTITY(1,1) PRIMARY KEY,
-    Name NVARCHAR(50)
+    Name NVARCHAR(70)
 );
 
 CREATE TABLE Food_Type (
     ID INT IDENTITY(1,1) PRIMARY KEY,
-    Name NVARCHAR(50)
+    Name NVARCHAR(70)
 );
 
 CREATE TABLE Food_Type_Association (
@@ -32,7 +32,7 @@ CREATE TABLE Tables (
 -- Calendar table 
 CREATE TABLE Reservations (
     Reservation_ID INT IDENTITY(1,1) PRIMARY KEY,
-    User_ID NVARCHAR(50),
+    User_ID NVARCHAR(70),
     Number_Of_People INT,
     Date_Reserved DATE,
     Start_Time TIME,
@@ -56,22 +56,22 @@ CREATE TABLE Reservation_Tables_Association (
 );
 
 CREATE TABLE User_ (
-    Username NVARCHAR(50) PRIMARY KEY,
-    Encrypted_Password NVARCHAR(50),
-    First_Name NVARCHAR(50),
-    Last_Name1 NVARCHAR(50),
-    Last_Name2 NVARCHAR(50),
-    Security_Question NVARCHAR(50),
-    Security_Answer NVARCHAR(50)
+    Username NVARCHAR(70) PRIMARY KEY,
+    Encrypted_Password NVARCHAR(70),
+    First_Name NVARCHAR(70),
+    Last_Name1 NVARCHAR(70),
+    Last_Name2 NVARCHAR(70),
+    Security_Question NVARCHAR(70),
+    Security_Answer NVARCHAR(70)
 );
 
 CREATE TABLE User_Type (
     ID INT IDENTITY(1,1) PRIMARY KEY,
-    Type_Name NVARCHAR(50)
+    Type_Name NVARCHAR(70)
 );
 
 CREATE TABLE User_Type_Association (
-    Username NVARCHAR(50),
+    Username NVARCHAR(70),
     Type_ID INT,
     PRIMARY KEY (Username, Type_ID)
 );
@@ -80,7 +80,7 @@ CREATE TABLE Restaurant_Data (
     Local_ID INT IDENTITY(1,1) PRIMARY KEY,
     Opening_Time TIME,
     Closing_Time TIME,
-    Local_Location NVARCHAR(50)
+    Local_Location NVARCHAR(70)
 );
 
 -- Adding foreign key constraints

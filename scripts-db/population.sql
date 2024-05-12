@@ -76,11 +76,12 @@ VALUES ('Admin'), ('Client');
 -- password = "admin1"
 -- security answer = "Blue"
 INSERT INTO User_ (Username, Encrypted_Password, First_Name, Last_Name1, Last_Name2, Security_Question, Security_Answer)
-VALUES ('admin1', '25f43b1486ad95a1398e3eeb3d83bc4010015fcc9bedb35b43', 'Jimena', 'Leon', 'Huertas', 'What is your favorite color?', 'ec7d56a01607001e6401366417c5e2eb00ffa0df17ca1a9a8');
--- password = "admin1"
+VALUES ('admin1', '25F43B1486AD95A1398E3EEB3D83BC4010015FCC9BEDB35B432E00298D5021F7', 'Jimena', 'Leon', 'Huertas', 'What is your favorite color?', 'EC7D56A01607001E6401366417C5E2EB00FFA0DF17CA1A9A831E0B32C8F11BF7');
+
+-- password = "client1"
 -- security answer = "Blue"
 INSERT INTO User_ (Username, Encrypted_Password, First_Name, Last_Name1, Last_Name2, Security_Question, Security_Answer)
-VALUES ('client1', '25f43b1486ad95a1398e3eeb3d83bc4010015fcc9bedb35b43', 'Fulana', 'Perez', 'Gonzalez', 'What is your favorite color?', 'ec7d56a016');
+VALUES ('client1', '1917E33407C28366C8E3B975B17E7374589312676B90229ADB4CE6E58552E223', 'Fulana', 'Perez', 'Gonzalez', 'What is your favorite color?', 'EC7D56A01607001E6401366417C5E2EB00FFA0DF17CA1A9A831E0B32C8F11BF7');
 
 -- Asocia usuarios con el tipo de usuario Admin
 INSERT INTO User_Type_Association (Username, Type_ID)
@@ -116,7 +117,7 @@ VALUES (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (5, 8); -- Reservation 5 uses tab
 
 -- Insert Restaurant Information
 INSERT INTO Restaurant_Data (Opening_Time, Closing_Time, Local_Location)
-VALUES ('08:00:00', '23:00:00', 'Barrio Escalante');
+VALUES ('12:00:00', '20:00:00', 'Barrio Escalante');
 
 -- Insert data into Recommendation table
 -- Obtener los IDs de los platos principales, bebidas y postres

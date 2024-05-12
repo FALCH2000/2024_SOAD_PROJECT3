@@ -4,6 +4,7 @@ import json
 from google.cloud import pubsub_v1
 import datetime
 import pytz
+import jwt
 
 # Configura el cliente de Pub/Sub
 subscriber = pubsub_v1.SubscriberClient()
@@ -44,6 +45,7 @@ def delete_from_db(solicitud):
     conn.execute(solicitud)
     conn.close()
 
+secret_key="6af00dfe63f6495195a3341ef6406c2c"
 def eliminar_reserva_callback(message):
     # Procesa el mensaje recibido
     reservaporborrar = message.data.decode('utf-8')
@@ -55,6 +57,26 @@ def eliminar_reserva_callback(message):
 
     # json de respuesta
     mensaje = {}
+
+    respuesta = {}
+    #verificar el token
+    try:
+        token_decoded  = jwt.decode(jwt=message.args.get('token'), key=secret_key)
+    except jwt.ExpiredSignatureError:
+        respuesta["status"] = 401
+        respuesta["message"] = "Error: EL TOKEN esta expirado!"
+        return json.dumps(respuesta, ensure_ascii=False)
+    except jwt.exceptions.InvalidTokenError as e:
+        respuesta["status"] = 401
+        respuesta["message"] = "Error: EL TOKEN no es valido!"
+        return json.dumps(respuesta, ensure_ascii=False)
+    except Exception as e:
+        respuesta["status"] = 500
+        respuesta["message"] = "Error: procesando el token"
+        return json.dumps(respuesta, ensure_ascii=False)
+    
+    # verificar datos del usuario
+    username = token_decoded['username']
 
     # Definir la zona horaria US-Central
     us_central_tz = pytz.timezone('US/Central')
@@ -72,7 +94,7 @@ def eliminar_reserva_callback(message):
     print("Hora actual en Arizona:", hora_actual_arizona)
     print("Hora normal en Arizona:", hora_actual)
 
-    if  not all(key in reservaporborrar['data'] for key in ['method', 'reservation_id', 'username', 'reservation_date', 'start_time']):
+    if  not all(key in reservaporborrar['data'] for key in ['method', 'reservation_id', 'reservation_date', 'start_time']):
         print("Faltan datos en la solicitud")
         mensaje['status'] = '400'
         mensaje['message'] = 'Faltan datos en la solicitud'
