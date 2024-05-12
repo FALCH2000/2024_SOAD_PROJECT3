@@ -11,6 +11,8 @@ import {MatNativeDateModule} from '@angular/material/core';
 import { NgxMatDatetimePickerModule, NgxMatTimepickerModule } from '@angular-material-components/datetime-picker'
 import {MatIconModule} from '@angular/material/icon';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatTableModule} from '@angular/material/table';
 
 
 @NgModule({
@@ -30,6 +32,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     MatIconModule,
     ReactiveFormsModule,
     MatCheckboxModule,
+    MatTabsModule,
+    MatTableModule,
   ],
   exports: [
     CommonModule,
@@ -45,6 +49,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     MatIconModule,
     ReactiveFormsModule,
     MatCheckboxModule,
+    MatTabsModule,
+    MatTableModule,
   ]
 })
 export class SharedModule { }

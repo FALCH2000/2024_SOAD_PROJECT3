@@ -7,7 +7,8 @@ const routes: Routes = [
   {path: 'homepage', component: HomepageComponent },
   {path: 'auth', loadChildren: () => import('./authentication/authentication.module').then(m => m.AuthenticationModule)},
   {path: 'general', loadChildren: () => import('./general/general.module').then(m => m.GeneralModule)},
-  {path: 'user', loadChildren: () => import('./user/user.module').then(m => m.UserModule)}
+  {path: 'user', loadChildren: () => import('./user/user.module').then(m => m.UserModule)},
+  {path: 'admin', loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)}
 ];
 
 @NgModule({
