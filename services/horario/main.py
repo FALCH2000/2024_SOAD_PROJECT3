@@ -12,7 +12,7 @@ subscriber = pubsub_v1.SubscriberClient()
 def getconn():
     connector = Connector()
     conn = connector.connect(
-        "groovy-rope-416616:us-central1:database-project3",
+        "soa-project3:us-central1:database-project3",
         "pytds",
         user="sqlserver",
         password="4321",
@@ -99,7 +99,7 @@ def ampliar_disponibilidad_reservas_callback(message):
 # entry point de la cloud function
 def ampliar_disponibilidad_reservas(event, context):
     # Nombre de la suscripción a la que te quieres suscribir
-    subscription_path = 'projects/groovy-rope-416616/subscriptions/ampliar-disponibilidad-reservas'
+    subscription_path = 'projects/soa-project3/subscriptions/ampliar-disponibilidad-reservas'
 
     # Suscribirse al tema
     future = subscriber.subscribe(subscription_path, callback=ampliar_disponibilidad_reservas_callback)

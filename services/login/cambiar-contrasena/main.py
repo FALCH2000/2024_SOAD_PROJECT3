@@ -14,7 +14,7 @@ subscriber = pubsub_v1.SubscriberClient()
 def getconn():
     connector = Connector()
     conn = connector.connect(
-        "groovy-rope-416616:us-central1:database-project3",
+        "soa-project3:us-central1:database-project3",
         "pytds",
         user="sqlserver",
         password="4321",
@@ -98,7 +98,7 @@ def cambiar_contrasena_callback(message):
 
 def cambiar_contrasena(event, context):
     # Nombre de la suscripcion a la que te quieres suscribir
-    subscription_path = "projects/groovy-rope-416616/subscriptions/restablecer-password"
+    subscription_path = "projects/soa-project3/subscriptions/restablecer-password"
 
     # Suscribirse
     future = subscriber.subscribe(subscription_path, callback=cambiar_contrasena_callback)

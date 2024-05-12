@@ -16,7 +16,7 @@ secret_key="6af00dfe63f6495195a3341ef6406c2c"
 def getconn():
     connector = Connector()
     conn = connector.connect(
-        "groovy-rope-416616:us-central1:database-project3",
+        "soa-project3:us-central1:database-project3",
         "pytds",
         user="sqlserver",
         password="4321",
@@ -95,7 +95,7 @@ def obtener_usuario_callback(username, password, headers):
     print("El usuario si existe. Se procedera a generar el token del usuario: ", username)
 
     # Calcular la fecha de expiración como un entero de tiempo Unix en segundos
-    exp_timestamp = int((datetime.now(timezone.utc) + timedelta(seconds=600)).timestamp())
+    exp_timestamp = int((datetime.now(timezone.utc) + timedelta(seconds=1800)).timestamp()) # 1800 segundos = 30 minutos
 
     token = jwt.encode(
         payload={   
