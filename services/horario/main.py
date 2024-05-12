@@ -71,8 +71,8 @@ def ampliar_disponibilidad_reservas_callback(message):
         # Verificar si los horarios de apertura y cierre son válidos
         opening_time = datetime.strptime(datos_restaurante['Opening_Time'], '%H:%M:%S').time()
         closing_time = datetime.strptime(datos_restaurante['Closing_Time'], '%H:%M:%S').time()
-        current_opening_time = data[0]['Opening_Time']
-        current_closing_time = data[0]['Closing_Time']
+        current_opening_time = datetime.strptime(data[0]['Opening_Time'], '%H:%M:%S').time()
+        current_closing_time = datetime.strptime(data[0]['Closing_Time'], '%H:%M:%S').time()
 
         print(f"Horarios actuales: {current_opening_time} - {current_closing_time}")
         print(f"Horarios nuevos: {opening_time} - {closing_time}")
