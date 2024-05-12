@@ -5,7 +5,7 @@ from main import crear_usuario_callback
 class TestCrearUsuarioCallback(unittest.TestCase):
     def test_creates_user_successfully(self):
         message = MagicMock()
-        message.data.decode.return_value = '{"method": "crear-usuario", "username": "testuser", "password": "testpassword", "first_name": "John", "last_name1": "Doe", "last_name2": "Smith", "security_question": "What is your favorite color?", "security_answer": "Blue"}'
+        message.data.decode.return_value = '{"method": "crear-usuario", "username": "jusfb18", "password": "testpassword", "first_name": "John", "last_name1": "Doe", "last_name2": "Smith", "security_question": "What is your favorite color?", "security_answer": "Blue"}'
         message.ack.return_value = None
 
         with patch('main.usar_bd_sin_return') as mock_usar_bd_sin_return:
@@ -18,7 +18,7 @@ class TestCrearUsuarioCallback(unittest.TestCase):
 
     def test_missing_data_in_request(self):
         message = MagicMock()
-        message.data.decode.return_value = '{"method": "crear-usuario", "username": "testuser", "password": "testpassword", "first_name": "John", "last_name1": "Doe"}'
+        message.data.decode.return_value = '{"method": "crear-usuario", "username": "jusfb18", "password": "testpassword", "first_name": "John", "last_name1": "Doe"}'
         message.ack.return_value = None
 
         with patch('builtins.print') as mock_print:
@@ -30,7 +30,7 @@ class TestCrearUsuarioCallback(unittest.TestCase):
 
     def test_incorrect_method(self):
         message = MagicMock()
-        message.data.decode.return_value = '{"method": "update-usuario", "username": "testuser", "password": "testpassword", "first_name": "John", "last_name1": "Doe", "last_name2": "Smith", "security_question": "What is your favorite color?", "security_answer": "Blue"}'
+        message.data.decode.return_value = '{"method": "update-usuario", "username": "jusfb18", "password": "testpassword", "first_name": "John", "last_name1": "Doe", "last_name2": "Smith", "security_question": "What is your favorite color?", "security_answer": "Blue"}'
         message.ack.return_value = None
 
         with patch('builtins.print') as mock_print:
@@ -42,7 +42,7 @@ class TestCrearUsuarioCallback(unittest.TestCase):
 
     def test_error_creating_user(self):
         message = MagicMock()
-        message.data.decode.return_value = '{"method": "crear-usuario", "username": "testuser", "password": "testpassword", "first_name": "John", "last_name1": "Doe", "last_name2": "Smith", "security_question": "What is your favorite color?", "security_answer": "Blue"}'
+        message.data.decode.return_value = '{"method": "crear-usuario", "username": "jusfb18", "password": "testpassword", "first_name": "John", "last_name1": "Doe", "last_name2": "Smith", "security_question": "What is your favorite color?", "security_answer": "Blue"}'
         message.ack.return_value = None
 
         with patch('main.usar_bd_sin_return') as mock_usar_bd_sin_return:

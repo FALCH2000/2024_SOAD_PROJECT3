@@ -21,8 +21,8 @@ secret_key="6af00dfe63f6495195a3341ef6406c2c"
 class TestObtenerUsuarioCallback(unittest.TestCase):
     def test_successful_user_authentication(self):
         # Mock the request parameters
-        username = "testuser"
-        password = "testpass"
+        username = "jusfb18"
+        password = "1917E33407C28366C8E3B975B17E7374589312676B90229ADB4CE6E58552E223"
         headers = {}
 
         # Mock the database query
@@ -31,7 +31,8 @@ class TestObtenerUsuarioCallback(unittest.TestCase):
 
         # Call the callback function
         response = obtener_usuario_callback(username, password, headers)
-        token_response = json.loads(response[0])
+        
+
         # Assert that the response contains the expected token
         self.assertEqual(token_response['status'], 200)
         self.assertEqual(token_response['message'], "Usuario encontrado y token generado.")
@@ -60,7 +61,7 @@ class TestObtenerUsuarioCallback(unittest.TestCase):
 
     def test_user_not_found(self):
         # Mock the request parameters
-        username = "testuser"
+        username = "aa18"
         password = "testpass"
         headers = {}
 
