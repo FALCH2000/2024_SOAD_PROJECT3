@@ -95,7 +95,7 @@ def obtener_reservas_futuras(fecha,hora):
     result_json = json.dumps(mensaje)
     return result_json
 
-
+secret_key="6af00dfe63f6495195a3341ef6406c2c"
 def obtener_reservas(request):
     # Set CORS headers for the preflight request
     if request.method == "OPTIONS":
@@ -120,6 +120,23 @@ def obtener_reservas(request):
         "Access-Control-Allow-Credentials": "true",
     }
 
+    #verificar el token
+    try:
+        token_decoded  = jwt.decode(jwt=request.args.get('token'), key=secret_key)
+    except jwt.ExpiredSignatureError:
+        respuesta["status"] = 401
+        respuesta["message"] = "Error: EL TOKEN esta expirado!"
+        return json.dumps(respuesta, ensure_ascii=False)
+    except jwt.exceptions.InvalidTokenError as e:
+        respuesta["status"] = 401
+        respuesta["message"] = "Error: EL TOKEN no es valido!"
+        return json.dumps(respuesta, ensure_ascii=False)
+    except Exception as e:
+        respuesta["status"] = 500
+        respuesta["message"] = "Error: procesando el token"
+        return json.dumps(respuesta, ensure_ascii=False)
+    
+    username = token_decoded['username']
     # Definir la zona horaria US-Central
     us_central_tz = pytz.timezone('US/Central')
 

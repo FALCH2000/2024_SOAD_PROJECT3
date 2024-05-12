@@ -110,7 +110,9 @@ def editar_reserva_callback(message):
     
     # verificar datos del usuario
     username = token_decoded['username']
-
+    exp_date = token_decoded['exp']
+    print(f"Username: {username} y exp_date: {exp_date}")
+    
     # validar que el mensaje tenga los campos necesarios
     if not all(key in reserva['data'] for key in ['method', 'reservation_id', 'number_of_people', 'reservation_date', 'start_time', 'selected_tables']):
         print("Codigo: 400. Faltan atributos en la solicitud editar-reserva")

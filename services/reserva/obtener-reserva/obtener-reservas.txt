@@ -5,3 +5,9 @@ https://us-central1-groovy-rope-416616.cloudfunctions.net/obtener-reservas/?time
 
 Para obtener todas las reservas:
 https://us-central1-groovy-rope-416616.cloudfunctions.net/obtener-reservas/?time=all
+
+Para obtener todas las reservas futuras:
+https://us-central1-groovy-rope-416616.cloudfunctions.net/obtener-reservas/?time=futuras
+
+Para obtener todas las reservas de un cliente:
+https://us-central1-groovy-rope-416616.cloudfunctions.net/obtener-reservas/?time=all&user_id=client1
