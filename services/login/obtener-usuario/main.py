@@ -61,6 +61,18 @@ def encriptar_texto(texto):
     return hash_str_hexadecimal
 
 def obtener_usuario_callback(username, password, headers):
+    """
+    Verifies the request and retrieves the user information.
+
+    Args:
+        username (str): The username provided in the request.
+        password (str): The password provided in the request.
+        headers (dict): The headers of the request.
+
+    Returns:
+        tuple: A tuple containing the JSON response, status code, and headers.
+    """
+
     print("Verificando request")
 
     respuesta = {}

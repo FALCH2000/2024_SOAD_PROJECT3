@@ -7,12 +7,6 @@ import pytz
 import hashlib
 
 
-# REVISAR SCRIPT DE CREACION DE LA BASE DE DATOS ANTES DE PROGRAMAR CUALQUIER QUERY
-# Este metodo utiliza pub/sub, y por ello no es igual a un metodo REST
-# Este metodo se encarga de cambiar la contrasena de un usuario al cual se le olvido su contrasena actual
-# No devuelve nada, pero imprime en consola el resultado de la operacion
-
-
 # Configura el cliente de Pub/Sub
 subscriber = pubsub_v1.SubscriberClient()
 
