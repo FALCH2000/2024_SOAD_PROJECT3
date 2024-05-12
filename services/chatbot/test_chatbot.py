@@ -22,15 +22,24 @@ def test_generateAnswer():
     assert generateAnswer("Positive") == "That's wonderful to hear! We're glad you enjoyed your experience."
 
 def test_chatbot():
-    # Test
-    # def chatbot(request):
-    request = {}
-    request["args"] = {"texto": "I am very happy!"}
-    request["path"] = "/aa"
-    request["method"] = "GET"
-    assert chatbot(request) == json.dumps({
-            "status_code": 404,
-            "message": "Not Found",
-            "data": "Ruta no encontrada"
-        })
+    # Mock request object
+    class MockRequest:
+        def __init__(self, args, path, method):
+            self.args = args
+            self.path = path
+            self.method = method
+
+    # Create a mock request
+    request = MockRequest(args={"texto": "I am very happy!"}, path="/aa", method="GET")
+    
+    # Call the chatbot function with the mock request
+    response = chatbot(request)
+
+    # Check the response
+    assert response == json.dumps({
+        "status_code": 404,
+        "message": "Not Found",
+        "data": "Ruta no encontrada"
+    })
+
 
