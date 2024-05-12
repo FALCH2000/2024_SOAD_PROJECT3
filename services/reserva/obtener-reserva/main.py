@@ -10,7 +10,7 @@ import jwt
 def getconn():
     connector = Connector()
     conn = connector.connect(
-        "groovy-rope-416616:us-central1:database-project3",
+        "soa-project3:us-central1:database-project3",
         "pytds",
         user="sqlserver",
         password="4321",

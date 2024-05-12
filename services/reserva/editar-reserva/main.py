@@ -13,7 +13,7 @@ subscriber = pubsub_v1.SubscriberClient()
 def getconn():
     connector = Connector()
     conn = connector.connect(
-        "groovy-rope-416616:us-central1:database-project3",
+        "soa-project3:us-central1:database-project3",
         "pytds",
         user="sqlserver",
         password="4321",
@@ -218,7 +218,7 @@ def editar_reserva_callback(message):
 # entry point de la cloud function
 def editar_reserva(event, context):
     # Nombre de la suscripción a la que te quieres suscribir
-    subscription_path = 'projects/groovy-rope-416616/subscriptions/editar-reserva'
+    subscription_path = 'projects/soa-project3/subscriptions/editar-reserva'
 
     # Suscribirse al tema
     future = subscriber.subscribe(subscription_path, callback=editar_reserva_callback)
