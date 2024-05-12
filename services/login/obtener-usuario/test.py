@@ -5,3 +5,4 @@ url = "https://us-central1-groovy-rope-416616.cloudfunctions.net/obtener-usuario
 
 response = requests.get(url)
 print(response.content)
+

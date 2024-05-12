@@ -4,6 +4,7 @@ import json
 from google.cloud import pubsub_v1
 import datetime
 import pytz
+import jwt
 
 # Configura el cliente de Pub/Sub
 subscriber = pubsub_v1.SubscriberClient()
@@ -78,6 +79,8 @@ def hora1_menor_hora2(hora1, hora2):
     else:
         return False
 
+
+secret_key="6af00dfe63f6495195a3341ef6406c2c"
 def editar_reserva_callback(message):
     # las validaciones y el codigo es muy parecido a la funcion de crear reserva
     # por lo que se reutiliza el codigo
@@ -88,8 +91,28 @@ def editar_reserva_callback(message):
     reserva = json.loads(reserva)
     message.ack()
 
+    respuesta = {}
+    #verificar el token
+    try:
+        token_decoded  = jwt.decode(jwt=message.args.get('token'), key=secret_key)
+    except jwt.ExpiredSignatureError:
+        respuesta["status"] = 401
+        respuesta["message"] = "Error: EL TOKEN esta expirado!"
+        return json.dumps(respuesta, ensure_ascii=False)
+    except jwt.exceptions.InvalidTokenError as e:
+        respuesta["status"] = 401
+        respuesta["message"] = "Error: EL TOKEN no es valido!"
+        return json.dumps(respuesta, ensure_ascii=False)
+    except Exception as e:
+        respuesta["status"] = 500
+        respuesta["message"] = "Error: procesando el token"
+        return json.dumps(respuesta, ensure_ascii=False)
+    
+    # verificar datos del usuario
+    username = token_decoded['username']
+
     # validar que el mensaje tenga los campos necesarios
-    if not all(key in reserva['data'] for key in ['method', 'username', 'reservation_id', 'number_of_people', 'reservation_date', 'start_time', 'selected_tables']):
+    if not all(key in reserva['data'] for key in ['method', 'reservation_id', 'number_of_people', 'reservation_date', 'start_time', 'selected_tables']):
         print("Codigo: 400. Faltan atributos en la solicitud editar-reserva")
 
     elif reserva['data']['method'] == "editar-reserva":

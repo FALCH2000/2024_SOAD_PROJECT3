@@ -66,10 +66,7 @@ def token_invalido(token):
         token_decoded  = jwt.decode(jwt=token, key=secret_key)
     except jwt.ExpiredSignatureError:
         return False
-    
-    
-    
-    pass
+
 
 
 def verificar_usuario_callback(request):
