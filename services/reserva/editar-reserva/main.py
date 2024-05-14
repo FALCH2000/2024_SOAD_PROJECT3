@@ -133,7 +133,7 @@ def editar_reserva_callback(message):
         try:
 
             # TODO: verificar que haya disponibilidad de las mesas en la fecha y hora solicitada
-            # for
+            
             print("Dentro del try de editar-reserva")
             # Definir la zona horaria US-Central
             us_central_tz = pytz.timezone('US/Central')
@@ -178,6 +178,7 @@ def editar_reserva_callback(message):
             
             print("Reserva futura verificada")
 
+            '''
             total_chairs = []
             for table in reserva['data']['selected_tables']:
                 
@@ -194,6 +195,7 @@ def editar_reserva_callback(message):
                 return
             
             print("Capacidad de sillas verificada")
+            '''
 
             # verificar que las horas de la reserva esten dentro del horario de atencion del restaurante
             hora_apertura_restaurante = usar_bd(f"SELECT Opening_Time FROM Restaurant_Data WHERE Local_ID = 1")
@@ -220,6 +222,7 @@ def editar_reserva_callback(message):
 
             print("Reserva actualizada")
 
+            '''
             for table in reserva['data']['selected_tables']:
                 # actualizar la tabla de disponibilidad de mesas
                 usar_bd_sin_return(f"DELETE FROM Table_Availability \
@@ -240,6 +243,7 @@ def editar_reserva_callback(message):
                                    VALUES ({reserva['data']['reservation_id']}, {table})")
 
             print("Mesas actualizadas")
+            '''
 
         except Exception as e:
             print(f"Codigo: 500. Error: {e}")
