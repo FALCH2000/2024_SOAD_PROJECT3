@@ -12,7 +12,7 @@ subscriber = pubsub_v1.SubscriberClient()
 def getconn():
     connector = Connector()
     conn = connector.connect(
-        "groovy-rope-416616:us-central1:database-project3",
+        "soa-project3:us-central1:database-project3",
         "pytds",
         user="sqlserver",
         password="4321",
@@ -85,7 +85,7 @@ def publicar_mensaje(respuesta):
 
     # Publica el mensaje de confirmación en el mismo tema de Pub/Sub
     publisher = pubsub_v1.PublisherClient()
-    topic_path = 'projects/groovy-rope-416616/topics/reserva'
+    topic_path = 'projects/soa-project3/topics/reserva'
     publisher.publish(topic_path, data=mensaje_json.encode(), type='crear-reserva-resultado')
 
 
@@ -99,7 +99,7 @@ def crear_reserva_callback(message):
     message.ack()
 
     # CAMBIAR EL FINAL DE LA URL
-    url = f"https://us-central1-groovy-rope-416616.cloudfunctions.net/verificar-usuario/?token={reserva['token']}"
+    url = f"https://us-central1-soa-project3.cloudfunctions.net/verificar-usuario/?token={reserva['token']}"
 
     response = requests.get(url)
     if response.status_code == 200:
@@ -234,7 +234,7 @@ def crear_reserva_callback(message):
 # entry point de la cloud function
 def crear_reserva(event, context):
     # Nombre de la suscripción a la que te quieres suscribir
-    subscription_path = 'projects/groovy-rope-416616/subscriptions/crear-reserva'
+    subscription_path = 'projects/soa-project3/subscriptions/crear-reserva'
 
     # Suscribirse al tema
     future = subscriber.subscribe(subscription_path, callback=crear_reserva_callback)

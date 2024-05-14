@@ -4,13 +4,14 @@ import json
 import datetime
 import pytz
 import jwt
+import requests
 
 
 # Obtains all data from database
 def getconn():
     connector = Connector()
     conn = connector.connect(
-        "groovy-rope-416616:us-central1:database-project3",
+        "soa-project3:us-central1:database-project3",
         "pytds",
         user="sqlserver",
         password="4321",
@@ -39,11 +40,20 @@ def usar_bd(solicitud):
     return data  # Return the captured data
 
 
-def obtener_todas_reservas():
-    query = "SELECT * FROM Reservations;"
+def obtener_todas_reservas(fecha, hora):
+    print("Fecha: ", fecha)
+
+    #query = "SELECT * FROM Reservations;"
+    query = f"SELECT * FROM Reservations WHERE Date_Reserved = '{fecha}' AND Start_Time > '{hora}' OR Date_Reserved > '{fecha}';"
     result = usar_bd(query)
+    print("RESULT: ", result)
     mensaje = {}
     mensaje["data"] = []
+
+    if len(result) == 0:
+        mensaje["data"] = "No hay reservas futuras"
+        return json.dumps(mensaje)
+    
     for elem in result:
         mensaje["data"].append({
             "Reservation_ID": elem[0],
@@ -57,9 +67,11 @@ def obtener_todas_reservas():
     result_json = json.dumps(mensaje)
     return result_json
 
-def obtener_reservas_pasadas(fecha,hora):
+def obtener_reservas_pasadas(fecha,hora, username):
+    respuesta = {}
+    
     # La query debe usar fecha y hora para obtener las reservas pasadas
-    query = f"SELECT * FROM Reservations WHERE Date_Reserved < '{fecha}' OR Date_Reserved = '{fecha}' AND Start_Time < '{hora}';"
+    query = f"SELECT * FROM Reservations WHERE Date_Reserved < '{fecha}' OR Date_Reserved = '{fecha}' AND Start_Time < '{hora}' AND User_ID = '{username}';"
     result = usar_bd(query)
     mensaje = {}
     mensaje["data"] = []
@@ -77,8 +89,10 @@ def obtener_reservas_pasadas(fecha,hora):
     return result_json
     
 
-def obtener_reservas_futuras(fecha,hora):
-    query = f"SELECT * FROM Reservations WHERE Date_Reserved = '{fecha}' AND Start_Time > '{hora}' OR Date_Reserved > '{fecha}';"
+def obtener_reservas_futuras(fecha,hora, username):
+    respuesta = {}
+    
+    query = f"SELECT * FROM Reservations WHERE Date_Reserved = '{fecha}' AND Start_Time > '{hora}' OR Date_Reserved > '{fecha}' AND User_ID = '{username}';"
     result = usar_bd(query)
     mensaje = {}
     mensaje["data"] = []
@@ -97,84 +111,100 @@ def obtener_reservas_futuras(fecha,hora):
 
 secret_key="6af00dfe63f6495195a3341ef6406c2c"
 def obtener_reservas(request):
-    # Set CORS headers for the preflight request
-    if request.method == "OPTIONS":
-        # Allows GET requests from any origin with the Content-Type
-        # header and caches preflight response for an 3600s
+    try:
+        print("REQUEST: ", request)
+        # Set CORS headers for the preflight request
+        if request.method == "OPTIONS":
+            # Allows GET requests from any origin with the Content-Type
+            # header and caches preflight response for an 3600s
+            headers = {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET",
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Max-Age": "3600",
+            }
+
+            return ("", 204, headers)
+
+        request_args = request.args
+        print("REQUEST ARGS: ", request_args)
+        path = request.path
+        respuesta = {}
+
+        # Set CORS headers for main requests
         headers = {
             "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Headers": "Content-Type",
-            "Access-Control-Max-Age": "3600",
+            "Access-Control-Allow-Credentials": "true",
         }
 
-        return ("", 204, headers)
+        print("BREAKPOINT 1")
+        token_decoded = {}
+        if request_args['time'] != "all":
+            print("BREAKPOINT 2")
 
-    request_args = request.args
-    path = request.path
-    respuesta = {}
+            # CAMBIAR EL FINAL DE LA URL
+            url = f"https://us-central1-soa-project3.cloudfunctions.net/verificar-usuario/?token={request_args['token']}"
 
-    # Set CORS headers for main requests
-    headers = {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Credentials": "true",
-    }
-
-    #verificar el token
-    try:
-        token_decoded  = jwt.decode(jwt=request.args.get('token'), key=secret_key)
-    except jwt.ExpiredSignatureError:
-        respuesta["status"] = 401
-        respuesta["message"] = "Error: EL TOKEN esta expirado!"
-        return json.dumps(respuesta, ensure_ascii=False)
-    except jwt.exceptions.InvalidTokenError as e:
-        respuesta["status"] = 401
-        respuesta["message"] = "Error: EL TOKEN no es valido!"
-        return json.dumps(respuesta, ensure_ascii=False)
-    except Exception as e:
-        respuesta["status"] = 500
-        respuesta["message"] = "Error: procesando el token"
-        return json.dumps(respuesta, ensure_ascii=False)
-    
-    username = token_decoded['username']
-    # Definir la zona horaria US-Central
-    us_central_tz = pytz.timezone('US/Central')
-
-    # Obtener la hora actual en la zona horaria US-Central
-    hora_actual_us_central = datetime.datetime.now(us_central_tz)
-
-    # Convertir a la zona horaria de Arizona
-    zona_horaria_arizona = pytz.timezone('US/Arizona')
-    hora_actual_arizona = hora_actual_us_central.astimezone(zona_horaria_arizona)
-
-    hora_actual = hora_actual_us_central.strftime('%H:%M:%S')
-    fecha_actual = hora_actual_us_central.strftime('%Y-%m-%d')
-
-    print("Hora actual en US-Central (Texas):", hora_actual_us_central)
-    print("Hora actual en Arizona:", hora_actual_arizona)
+            response = requests.get(url)
+            if response.status_code == 200:
+                print("Codigo: 200. Token valido")
+                print(response.json())
+                print(f"Token: {request_args['token']}")
+                token_decoded  = jwt.decode(jwt=request_args['token'], key=secret_key, algorithms=["HS256"])
+            else:
+                print("Codigo: 400. Token invalido")
+                
+                mensaje = {
+                    "data": "",
+                    "status": 400,
+                    "message": "Token invalido"
+                }
+            
+            username = token_decoded['username']
 
 
-    validate = (request_args.get("time") != "" and request_args.get("time") is not None)
+        print("BREAKPOINT 3")
 
-    if not validate:
-        respuesta["message"] = "Error: Peticion incorrecta"
-        return (json.dumps(respuesta), 400, headers)
+        # Definir la zona horaria US-Central
+        us_central_tz = pytz.timezone('US/Central')
 
-    
-    if path == "/" and request.method == 'GET' and "time" in request_args:
-        tiempo = request_args.get("time")
-        
-        validate2 = (request_args.get("user_id") != "" and request_args.get("user_id") is not None)
+        # Obtener la hora actual en la zona horaria US-Central
+        hora_actual_us_central = datetime.datetime.now(us_central_tz)
 
-        if tiempo == "all":
-            return (obtener_todas_reservas(), 200, headers)
-        elif tiempo == "pasadas":
-            return (obtener_reservas_pasadas(fecha_actual,hora_actual),200, headers)
-        elif tiempo == "futuras":
-            return (obtener_reservas_futuras(fecha_actual,hora_actual),200, headers)
-        else:
+        # Convertir a la zona horaria de Arizona
+        zona_horaria_arizona = pytz.timezone('US/Arizona')
+        hora_actual_arizona = hora_actual_us_central.astimezone(zona_horaria_arizona)
+
+        hora_actual = hora_actual_us_central.strftime('%H:%M:%S')
+        fecha_actual = hora_actual_us_central.strftime('%Y-%m-%d')
+
+        print("Hora actual en US-Central (Texas):", hora_actual_us_central)
+        print("Hora actual en Arizona:", hora_actual_arizona)
+
+
+        validate = (request_args["time"] != "" and request_args["time"] is not None)
+
+        if not validate:
             respuesta["message"] = "Error: Peticion incorrecta"
             return (json.dumps(respuesta), 400, headers)
-    else:
-        respuesta["message"] = "Error: Método no válido."
+
+        print("BREAKPOINT 4")
+
+        if path == "/" and request.method == 'GET' and "time" in request_args:
+            tiempo = request_args.get("time")
+            
+            if tiempo == "all":
+                return (obtener_todas_reservas(fecha_actual,hora_actual), 200, headers)
+            elif tiempo == "pasadas":
+                return (obtener_reservas_pasadas(fecha_actual,hora_actual, username),200, headers)
+            elif tiempo == "futuras":
+                return (obtener_reservas_futuras(fecha_actual,hora_actual, username),200, headers)
+            else:
+                respuesta["message"] = "Error: Peticion incorrecta"
+                return (json.dumps(respuesta), 400, headers)
+        else:
+            respuesta["message"] = "Error: Método no válido."
+            return (json.dumps(respuesta), 404, headers)
+    except Exception as e:
+        respuesta["message"] = f"Error: {e}"
         return (json.dumps(respuesta), 404, headers)

@@ -1,9 +1,9 @@
 {
+    "token" : "",
     "data": {
         "method" : "editar-reserva",
-        "username" : "client1",
         "reservation_id" : "1",
-        "number_of_people": "7",
+        "number_of_people": "4",
         "reservation_date" : "2031-12-12",
         "start_time" : "10:30:00",
         "selected_tables": [

@@ -13,7 +13,7 @@ subscriber = pubsub_v1.SubscriberClient()
 def getconn():
     connector = Connector()
     conn = connector.connect(
-        "groovy-rope-416616:us-central1:database-project3",
+        "soa-project3:us-central1:database-project3",
         "pytds",
         user="sqlserver",
         password="4321",
@@ -61,7 +61,7 @@ def eliminar_reserva_callback(message):
     respuesta = {}
     #verificar el token
     try:
-        token_decoded  = jwt.decode(jwt=message.args.get('token'), key=secret_key)
+        token_decoded  = jwt.decode(jwt=reservaporborrar['token'], key=secret_key, algorithms=["HS256"])
     except jwt.ExpiredSignatureError:
         respuesta["status"] = 401
         respuesta["message"] = "Error: EL TOKEN esta expirado!"
@@ -159,12 +159,12 @@ def eliminar_reserva_callback(message):
     
     # Publica el mensaje de confirmación en el mismo tema de Pub/Sub
     publisher = pubsub_v1.PublisherClient()
-    topic_path = 'projects/groovy-rope-416616/topics/reserva'
+    topic_path = 'projects/soa-project3/topics/reserva'
     publisher.publish(topic_path, data=mensaje_json.encode(), type='eliminar-reserva-resultado')
 
 def eliminar_reserva(event, context):
     # Nombre de la suscripción a la que te quieres suscribir
-    subscription_path = 'projects/groovy-rope-416616/subscriptions/eliminar-reserva'
+    subscription_path = 'projects/soa-project3/subscriptions/eliminar-reserva'
 
     # Suscribirse al tema
     future = subscriber.subscribe(subscription_path, callback=eliminar_reserva_callback)

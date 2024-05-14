@@ -16,7 +16,7 @@ subscriber = pubsub_v1.SubscriberClient()
 def getconn():
     connector = Connector()
     conn = connector.connect(
-        "groovy-rope-416616:us-central1:database-project3",
+        "soa-project3:us-central1:database-project3",
         "pytds",
         user="sqlserver",
         password="4321",
@@ -86,6 +86,10 @@ def crear_usuario_callback(message):
                         VALUES ('{request['username']}', '{encrypted_password}', '{request['first_name']}', '{request['last_name1']}', \
                         '{request['last_name2']}', '{encrypted_security_question}', '{encrypted_security_answer}')")
         
+        # Asociar el usuario con el tipo de usuario "Cliente"
+        usar_bd_sin_return(f"INSERT INTO User_Type_Association (Username, Type_ID) \
+                           VALUES ('{request['username']}', 2)")
+
         print("Codigo: 200. Usuario creado exitosamente.")
     
     except Exception as e:
@@ -93,7 +97,7 @@ def crear_usuario_callback(message):
 
 def crear_usuario(event, context):
     # Nombre de la suscripcion a la que te quieres suscribir
-    subscription_path = 'projects/groovy-rope-416616/subscriptions/crear-usuario'
+    subscription_path = 'projects/soa-project3/subscriptions/crear-usuario'
 
     # Suscribirse
     future = subscriber.subscribe(subscription_path, callback=crear_usuario_callback)

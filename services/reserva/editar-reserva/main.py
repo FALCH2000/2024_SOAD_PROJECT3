@@ -13,7 +13,7 @@ subscriber = pubsub_v1.SubscriberClient()
 def getconn():
     connector = Connector()
     conn = connector.connect(
-        "groovy-rope-416616:us-central1:database-project3",
+        "soa-project3:us-central1:database-project3",
         "pytds",
         user="sqlserver",
         password="4321",
@@ -85,6 +85,7 @@ def editar_reserva_callback(message):
     # las validaciones y el codigo es muy parecido a la funcion de crear reserva
     # por lo que se reutiliza el codigo
     # Procesa el mensaje recibido
+    print(f"Recibido mensaje: {message}")
     reserva = message.data.decode('utf-8')
 
     # convertir el mensaje a un diccionario
@@ -93,26 +94,37 @@ def editar_reserva_callback(message):
 
     respuesta = {}
     #verificar el token
+    print(f"Verificando token")
+    token_decoded = {}
     try:
-        token_decoded  = jwt.decode(jwt=message.args.get('token'), key=secret_key)
+        token_decoded  = jwt.decode(jwt=reserva['token'], key=secret_key, algorithms=["HS256"])
     except jwt.ExpiredSignatureError:
+        print("Error: EL TOKEN esta expirado!")
         respuesta["status"] = 401
         respuesta["message"] = "Error: EL TOKEN esta expirado!"
         return json.dumps(respuesta, ensure_ascii=False)
     except jwt.exceptions.InvalidTokenError as e:
+        print("Error: EL TOKEN no es valido!")
         respuesta["status"] = 401
         respuesta["message"] = "Error: EL TOKEN no es valido!"
         return json.dumps(respuesta, ensure_ascii=False)
     except Exception as e:
+        print(f"Error: procesando el token: {e}")
         respuesta["status"] = 500
         respuesta["message"] = "Error: procesando el token"
         return json.dumps(respuesta, ensure_ascii=False)
     
+    print(f"Token verificado: {token_decoded}")
+
     # verificar datos del usuario
     username = token_decoded['username']
     exp_date = token_decoded['exp']
     print(f"Username: {username} y exp_date: {exp_date}")
     
+    print(f"username: {username}")
+    
+    print(f"Datos del usuario verificandose")
+
     # validar que el mensaje tenga los campos necesarios
     if not all(key in reserva['data'] for key in ['method', 'reservation_id', 'number_of_people', 'reservation_date', 'start_time', 'selected_tables']):
         print("Codigo: 400. Faltan atributos en la solicitud editar-reserva")
@@ -122,7 +134,7 @@ def editar_reserva_callback(message):
 
             # TODO: verificar que haya disponibilidad de las mesas en la fecha y hora solicitada
             # for
-            
+            print("Dentro del try de editar-reserva")
             # Definir la zona horaria US-Central
             us_central_tz = pytz.timezone('US/Central')
 
@@ -139,6 +151,8 @@ def editar_reserva_callback(message):
             print("Hora actual en Arizona:", hora_actual_arizona)
             print("Hora normal en Arizona:", hora_actual)
 
+            print(f"Fecha actual: {fecha_actual} y Hora actual: {hora_actual}")
+
             # verificar que la reserva exista
             reserva_verification = usar_bd(f"SELECT * FROM Reservations WHERE Reservation_ID = {reserva['data']['reservation_id']}")
             old_data = reserva_verification[0]
@@ -146,10 +160,14 @@ def editar_reserva_callback(message):
                 print("Codigo: 404. La reserva no existe")
                 return
 
+            print(f"Reserva verificada: {reserva_verification}")
+
             # Suponiendo que reserva_verification contiene cadenas para fecha y hora
             old_date = reserva_verification[0][3].strftime('%Y-%m-%d')
             old_start_time = reserva_verification[0][4].strftime('%H:%M:%S')
             print(f"old date = {old_date} old start time = {old_start_time}")
+
+            print(f"old_data: {old_data}")
 
             # verificar si la reserva es futura
             if fecha_actual > reserva['data']['reservation_date']:
@@ -158,6 +176,8 @@ def editar_reserva_callback(message):
                 #mensaje['message'] = 'No se puede eliminar una reserva pasada'
                 return #json.dumps(mensaje)
             
+            print("Reserva futura verificada")
+
             total_chairs = []
             for table in reserva['data']['selected_tables']:
                 
@@ -165,12 +185,16 @@ def editar_reserva_callback(message):
                 print(f"SILLAS: {sillas[0][0]}")
                 total_chairs.append(int(sillas[0][0]))
             
+            print(f"TOTAL SILLAS: {sum(total_chairs)}")
+
             # verificar que la cantidad de personas de la reserva sea menor o igual a la capacidad de las mesas seleccionadas
             print(f"TOTAL SILLAS: {sum(total_chairs)} y PERSONAS: {int(reserva['data']['number_of_people'])}")
             if sum(total_chairs) < int(reserva['data']['number_of_people']):
                 print("Codigo: 400. Reserva no creada, eligio mal las mesas ya que le faltarian sillas.")
                 return
             
+            print("Capacidad de sillas verificada")
+
             # verificar que las horas de la reserva esten dentro del horario de atencion del restaurante
             hora_apertura_restaurante = usar_bd(f"SELECT Opening_Time FROM Restaurant_Data WHERE Local_ID = 1")
             print(f"HORA DE APERTURA: {str(hora_apertura_restaurante[0][0])}")
@@ -183,12 +207,16 @@ def editar_reserva_callback(message):
                 print("Codigo: 400. Las horas de la potencial reserva no estan dentro del horario de atencion del restaurante")
                 return
             
+            print("Horario de atencion verificado")
+            print(f"New date: {reserva['data']['reservation_date']} and New start time: {reserva['data']['start_time']}")
+
             usar_bd_sin_return(f"UPDATE Reservations SET \
                     Number_Of_People = {reserva['data']['number_of_people']}, \
                     Date_Reserved = '{reserva['data']['reservation_date']}', \
                     Start_Time = '{reserva['data']['start_time']}', \
                     End_Time = '{end_reservation_time}' \
-                    WHERE Reservation_ID = {reserva['data']['reservation_id']} AND User_ID = '{reserva['data']['username']}'")
+                    WHERE Reservation_ID = {reserva['data']['reservation_id']} \
+                    AND User_ID = '{username}'")
 
             print("Reserva actualizada")
 
@@ -212,13 +240,14 @@ def editar_reserva_callback(message):
                                    VALUES ({reserva['data']['reservation_id']}, {table})")
 
             print("Mesas actualizadas")
+
         except Exception as e:
             print(f"Codigo: 500. Error: {e}")
 
 # entry point de la cloud function
 def editar_reserva(event, context):
     # Nombre de la suscripción a la que te quieres suscribir
-    subscription_path = 'projects/groovy-rope-416616/subscriptions/editar-reserva'
+    subscription_path = 'projects/soa-project3/subscriptions/editar-reserva'
 
     # Suscribirse al tema
     future = subscriber.subscribe(subscription_path, callback=editar_reserva_callback)

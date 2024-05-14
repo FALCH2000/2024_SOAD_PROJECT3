@@ -8,7 +8,7 @@ subscriber = pubsub_v1.SubscriberClient()
 
 def publish_message(topic, data, tipo):
     publisher = pubsub_v1.PublisherClient()
-    topic_path = publisher.topic_path("groovy-rope-416616", topic)
+    topic_path = publisher.topic_path("soa-project3", topic)
     data = data.encode("utf-8")
     attributes = {}
     attributes["type"] = tipo
