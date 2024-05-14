@@ -1,0 +1,83 @@
+<div class="form-container">
+    <br>
+    <form class="example-form" [formGroup]="registerForm">
+        <h1> Registro </h1>
+        <hr>
+        <p>
+            <mat-form-field class="example-full-width" appearance="fill">
+                <mat-label>Nombre de Usuario</mat-label>
+                <input matInput placeholder="Ingresa tu nombre" name="username"
+                formControlName="username">
+            </mat-form-field>
+        </p>
+
+
+        <p>
+            <mat-form-field class="example-full-width" appearance="fill">
+                <mat-label>Contraseña</mat-label>
+                <input matInput placeholder="Ingresa tu contraseña" value="" name="password" type="password" formControlName="password">
+            </mat-form-field>
+        </p>
+        <div *ngIf="registerForm?.get('password')?.hasError('pattern')" class="error-message">
+            La contraseña debe tener al menos 8 caracteres, incluyendo al menos una letra mayúscula, una letra minúscula y un número.
+        </div>
+
+        <p>
+            <mat-form-field class="example-full-width" appearance="fill">
+                <mat-label>Ingresa nuevamente tu contraseña</mat-label>
+                <input matInput placeholder="Re enter your password" value="" name="passwordVerification" type="password" formControlName="passwordVerification">
+            </mat-form-field>
+        </p>
+
+        <div *ngIf="registerForm?.get('passwordVerification')?.hasError('passwordMismatch')" class="error-message">
+            Las contraseñas no coinciden.
+          </div>
+            <!-- NOMBRE Y APELLIDOS DE USUARIO -->
+          <p>
+            <mat-form-field class="example-full-width" appearance="fill">
+                <mat-label>Nombre</mat-label>
+                <input matInput placeholder="Ingresa tu nombre" name="first_name"
+                formControlName="first_name">
+            </mat-form-field>
+        </p>
+
+        <p>
+            <mat-form-field class="example-full-width" appearance="fill">
+                <mat-label>Primer Apellido</mat-label>
+                <input matInput placeholder="Ingresa tu primer apellido" name="last_name1"
+                formControlName="last_name1">
+            </mat-form-field>
+        </p>
+
+        <p>
+            <mat-form-field class="example-full-width" appearance="fill">
+                <mat-label>Segundo Apellido</mat-label>
+                <input matInput placeholder="Ingresa tu segundo apellido" name="last_name2"
+                formControlName="last_name2">
+            </mat-form-field>
+        </p>
+
+          <p>
+            <mat-form-field class="example-full-width" appearance="fill">
+                <mat-label>Pregunta de seguridad</mat-label>
+                <mat-select placeholder="Selecciona la pregunta de seguridad que deseas" formControlName="security_question">
+                    <mat-option *ngFor="let question of security_question_list" [value]="question">
+                        {{ question }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </p>
+        
+        <p>
+            <mat-form-field class="example-full-width" appearance="fill">
+                <mat-label>Security Answer</mat-label>
+                <input matInput placeholder="Enter your security answer" name="security_answer"
+                formControlName="security_answer">
+            </mat-form-field>
+        </p>
+        
+        <button mat-stroked-button color="primary" (click)="submit()" class="submit">Submit</button>
+
+        
+    </form>
+</div>

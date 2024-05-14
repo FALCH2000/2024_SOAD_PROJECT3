@@ -1,0 +1,64 @@
+body {
+    background-color: #283035;
+}
+
+.container {
+ align-items: center;
+ justify-content: center;
+ margin-top: 3%;
+ margin-bottom: 3%;
+}
+
+.container-sm { 
+  position: relative;
+    background-color: #ab722c;
+    width: 600px;
+    margin: auto;
+    border-radius: 10px;
+    color: white;
+    padding: 20px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+			-webkit-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+			-moz-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.container.recommendation {
+  background-color: #ab722c;
+    width: 350px;
+    text-align: center;
+    border-radius: 10px;
+    color: white;
+    padding: 20px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+			-webkit-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+			-moz-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    
+}
+
+volver-menu {
+  align-self: center;
+  margin: auto;
+}
+.menu-title {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont;
+    font-weight: 400;
+    text-align: center;
+    font-size: 37px;
+}
+
+.menu-columns {
+    column-count: 2; /* Distribuir en dos columnas */
+    column-gap: 20px; /* Espacio entre columnas */
+  }
+
+  button{
+    margin: 3px 6px;
+  }
+
+  .li-principal{
+    margin-top: 10px;
+  }
+
+  li{
+    margin-top: 5px
+  }

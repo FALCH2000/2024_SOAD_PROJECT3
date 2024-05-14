@@ -1,0 +1,66 @@
+<div>
+    <div class="container d-flex align-items-center justify-content-center">
+      <div class="container-sm d-flex align-items-center justify-content-center" *ngIf="!requestDone">
+    <div >
+      <div *ngIf="menuData">
+        <h2 class="menu-title">Menú del Restaurante</h2>
+        <hr>
+        <p>Elige cuantas comidas para la recomendacion quieres</p>
+        <select class="form-select" aria-label="Default select example" [(ngModel)]="cantidadComidas">
+          <option selected value="1">1</option>
+          <option value="2">2</option>
+    
+        </select>
+        <ul>
+        <div class="container-options" *ngFor="let category of getKeys(menuData)">
+          <li  *ngIf="category != 'types'">
+            
+            <h4 class="li-principal">{{ category }}</h4>
+            <ul class="menu-columns">
+              <li *ngFor="let menuItem of menuData[category]" style="list-style-type: none;">
+                <input type="checkbox" id="{{menuItem.id}}"  (change)="toggleSelection(menuItem)">
+    
+                <label for="{{menuItem.name}}">
+                {{   menuItem.name }}
+                </label>
+              </li>
+            </ul>
+            
+          </li>
+        </div>
+        </ul>
+      </div>
+    </div>
+
+    </div>
+    <div *ngIf="requestDone" class="container align-items-center justify-content-center recommendation">
+      <h1> Recomendacion </h1>
+      <div *ngIf="cantidadComidas=='1'">
+        <h2> Tu seleccion de platillo: {{selectedItems[0].name}} </h2>
+      </div>
+      <div *ngIf="cantidadComidas=='2'">
+        <h2 style="margin: 10px;"> Tu seleccion de platillo: {{selectedItems[0].name}}  y {{selectedItems[1].name}} </h2>
+      </div>
+      <hr>
+      <div *ngIf="!recommendationEmpty">
+        <p style="margin: 20px;"> <label style="font-weight: bold;">Main Dish:</label> {{recommendation[0]}} </p>
+        <p style="margin: 20px;"> <label style="font-weight: bold;">Drink:</label> {{recommendation[1]}} </p>
+        <p style="margin: 20px;"> <label style="font-weight: bold;">Dessert:</label> {{recommendation[2]}} </p>
+      </div>
+
+      <div *ngIf="recommendationEmpty">
+        <p style="margin: 20px; font-weight: bold;"> No hay recomendaciones</p>
+        
+      </div>
+
+      <button style="margin: 40px;" type="button" (click)="volverMenu()" class="btn btn-outline-light volver-menu">Volver al menú</button>
+    </div > 
+
+    </div>
+    <div class="container d-flex align-items-center justify-content-center" *ngIf="!requestDone">
+      <button  type="button" class="btn btn-outline-light" routerLink="/homepage"><i class="bi bi-arrow-left"></i>Volver</button>
+      <button (click)="borrarData()" type="button" class="btn btn-outline-light">Limpiar selección</button>
+      <button (click)="enviarSeleccion()" type="button" class="btn btn-outline-light">Enviar selección</button>
+    </div>
+    
+    </div>
