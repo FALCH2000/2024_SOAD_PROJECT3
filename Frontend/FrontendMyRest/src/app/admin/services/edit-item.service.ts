@@ -1,7 +1,7 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { Injectable } from '@angular/core';
-import {catchError} from 'rxjs/operators'; 
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {Observable, throwError} from 'rxjs';
+import {Injectable} from '@angular/core';
+import {catchError} from 'rxjs/operators';
 
 const url = "https://us-central1-soa-project3.cloudfunctions.net/broker"
 
@@ -18,7 +18,13 @@ export class EditItemService {
   }
 
   editReservation(schedule:any){
-    return this.http.post<any>(url, schedule).pipe(catchError(this.handleError));
+    console.log(schedule)
+    const json= {
+      token:localStorage.getItem('token'),
+      data:schedule
+    }
+    console.log(json)
+    return this.http.post<any>(url, json).pipe(catchError(this.handleError));
   }
 
   private handleError(error: HttpErrorResponse) {

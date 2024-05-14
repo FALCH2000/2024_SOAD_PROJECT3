@@ -63,6 +63,22 @@ export class EditItemComponent implements OnInit{
 
   }
   onSubmit():void{
+    const year = this.reservationForm.get('dateReserved')?.value.getFullYear();
+    const month = ('0' + (this.reservationForm.get('dateReserved')?.value.getMonth() + 1)).slice(-2);
+    const day = ('0' + this.reservationForm.get('dateReserved')?.value.getDate()).slice(-2);
+    const selectedDateFormatted = `${year}-${month}-${day}`;
+    const json = {
+      "method" : "editar-reserva",
+      "reservation_id":this.user_reservation_id,
+      "dateReserved":selectedDateFormatted,
+      "startTime":this.reservationForm.get('startTime')?.value,
+      "endTime":this.reservationForm.get('endTime')?.value,
+      "numberOfPeople":this.reservationForm.get('numberOfPeople')?.value,
+      "selected_tables": [1,2]
+    }
+    this.editItemService.editReservation(json).subscribe((data)=>{
+      console.log("Reservation Edited ", data)
+    });
 
   }
 }
