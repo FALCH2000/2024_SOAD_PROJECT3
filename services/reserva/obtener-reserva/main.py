@@ -109,11 +109,36 @@ def obtener_reservas_futuras(fecha,hora, username):
     result_json = json.dumps(mensaje)
     return result_json
 
+def obtener_reserva_puntual(reservation_id):
+    respuesta = {}
+    
+    query = f"SELECT * FROM Reservations WHERE Reservation_ID = '{reservation_id}';"
+    result = usar_bd(query)
+    mensaje = {}
+    mensaje["data"] = []
+    for elem in result:
+        mensaje["data"].append({
+            "Reservation_ID": elem[0],
+            "Username": elem[1],
+            "Number_Of_People": elem[2],
+            "Date_Reserved": elem[3].strftime('%Y-%m-%d'),  # Convertir a cadena de texto en formato 'YYYY-MM-DD'
+            "Start_Time": elem[4].strftime('%H:%M:%S'),    # Convertir a cadena de texto en formato 'HH:MM:SS'
+            "End_Time": elem[5].strftime('%H:%M:%S')       # Convertir a cadena de texto en formato 'HH:MM:SS'
+        })
+    
+    mensaje["status"] = 200
+    mensaje["message"] = "Reserva encontrada"
+
+    result_json = json.dumps(mensaje)
+    return result_json
+
+
 secret_key="6af00dfe63f6495195a3341ef6406c2c"
 def obtener_reservas(request):
     try:
         print("REQUEST: ", request)
-        # Set CORS headers for the preflight request
+        
+        # CORS related
         if request.method == "OPTIONS":
             # Allows GET requests from any origin with the Content-Type
             # header and caches preflight response for an 3600s
@@ -125,21 +150,21 @@ def obtener_reservas(request):
             }
 
             return ("", 204, headers)
+    
+        headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": "true",
+        }
 
         request_args = request.args
         print("REQUEST ARGS: ", request_args)
         path = request.path
         respuesta = {}
 
-        # Set CORS headers for main requests
-        headers = {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Credentials": "true",
-        }
-
         print("BREAKPOINT 1")
         token_decoded = {}
-        if request_args['time'] != "all":
+
+        if "time" in request_args and request_args['time'] != "" and request_args['time'] is not None and request_args['time'] != "all":
             print("BREAKPOINT 2")
 
             # CAMBIAR EL FINAL DE LA URL
@@ -162,7 +187,6 @@ def obtener_reservas(request):
             
             username = token_decoded['username']
 
-
         print("BREAKPOINT 3")
 
         # Definir la zona horaria US-Central
@@ -181,29 +205,35 @@ def obtener_reservas(request):
         print("Hora actual en US-Central (Texas):", hora_actual_us_central)
         print("Hora actual en Arizona:", hora_actual_arizona)
 
-
-        validate = (request_args["time"] != "" and request_args["time"] is not None)
-
+        if "time" in request_args:
+            validate = (request_args['time'] == "pasadas" or request_args['time'] == "futuras" or request_args['time'] == "all")
+        else:
+            validate = ("reservation_id" in request_args and request_args['reservation_id'] != "")
         if not validate:
             respuesta["message"] = "Error: Peticion incorrecta"
             return (json.dumps(respuesta), 400, headers)
 
+
         print("BREAKPOINT 4")
 
-        if path == "/" and request.method == 'GET' and "time" in request_args:
-            tiempo = request_args.get("time")
+        if path == "/" and request.method == 'GET':
+            if "time" in request_args:
+                tiempo = request_args.get("time")
             
-            if tiempo == "all":
-                return (obtener_todas_reservas(fecha_actual,hora_actual), 200, headers)
-            elif tiempo == "pasadas":
-                return (obtener_reservas_pasadas(fecha_actual,hora_actual, username),200, headers)
-            elif tiempo == "futuras":
-                return (obtener_reservas_futuras(fecha_actual,hora_actual, username),200, headers)
+                if tiempo == "all":
+                    return (obtener_todas_reservas(fecha_actual,hora_actual), 200, headers)
+                elif tiempo == "pasadas":
+                    return (obtener_reservas_pasadas(fecha_actual,hora_actual, username),200, headers)
+                elif tiempo == "futuras":
+                    return (obtener_reservas_futuras(fecha_actual,hora_actual, username),200, headers)
+            
+            elif "reservation_id" in request_args and request_args["reservation_id"] != "":
+                return (obtener_reserva_puntual(request_args["reservation_id"]),200, headers)
             else:
                 respuesta["message"] = "Error: Peticion incorrecta"
                 return (json.dumps(respuesta), 400, headers)
         else:
-            respuesta["message"] = "Error: Método no válido."
+            respuesta["message"] = "Error: Metodo no valido."
             return (json.dumps(respuesta), 404, headers)
     except Exception as e:
         respuesta["message"] = f"Error: {e}"
