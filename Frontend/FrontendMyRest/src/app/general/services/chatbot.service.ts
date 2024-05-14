@@ -10,6 +10,6 @@ export class ChatbotService {
   }
 
   chatMessage(message: string) {
-    return this.http.get<any>(`https://us-central1-groovy-rope-416616.cloudfunctions.net/feedback-chatbot/?texto=${message}`);
+    return this.http.get<any>(`https://us-central1-soa-project3.cloudfunctions.net/feedback-chatbot/?texto=${message}`);
   }
 }

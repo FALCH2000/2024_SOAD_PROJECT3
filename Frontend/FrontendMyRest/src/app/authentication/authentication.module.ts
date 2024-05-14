@@ -9,13 +9,15 @@ import { StrongPasswordDirective } from '../directives/strong-password.directive
 import { SharedModule } from '../shared/shared.module';
 import { RegisterComponent } from './register/register.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 
 
 @NgModule({
   declarations: [
     LoginComponent,
     RegisterComponent,
-    StrongPasswordDirective
+    StrongPasswordDirective,
+    ForgotPasswordComponent
   ],
   imports: [
     SharedModule,

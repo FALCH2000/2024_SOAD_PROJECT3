@@ -11,6 +11,7 @@ import { HomepageComponent } from './homepage/homepage.component';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { GeneralModule } from './general/general.module';
 import { SharedModule } from './shared/shared.module';
+import { LocationStrategy, HashLocationStrategy } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,7 @@ import { SharedModule } from './shared/shared.module';
     GeneralModule,
     SharedModule
   ],
-  providers: [],
+  providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
