@@ -24,6 +24,7 @@ export class VerificationComponent {
 
   onTabChange(event: MatTabChangeEvent) {
     console.log('Tab activo:', event.index);
+    this.clearData();
     this.clientId = "";
     if(event.index === 2){
       this.verificationService.getReservaciones().subscribe((data)=>{
@@ -34,7 +35,30 @@ export class VerificationComponent {
     }
   }
 
-  cargarReservaciones(){
+  searchPastReservations(){
+    console.log(`Buscando reservacion pasada de cliente: ${this.clientId}`);
+    this.clearData();
+    this.verificationService.getReservacionesPasadas(this.clientId).subscribe((data)=>{
+      console.log(data)
+      this.all_reservations = data.data;
+      this.passed_reservation_flag = true;
+  })
+  }
 
+  searchFutureReservations(){
+    console.log(`Buscando reservacion pasada de cliente: ${this.clientId}`);
+    this.clearData();
+    this.verificationService.getReservacionesFuturas(this.clientId).subscribe((data)=>{
+      console.log(data)
+      this.all_reservations = data.data;
+      this.future_reservation_flag = true;
+  })
+  }
+
+  clearData(){
+    this.all_reservations = {};
+    this.passed_reservation_flag = false;
+    this.future_reservation_flag = false;
+    this.all_reservations_flag = false;
   }
 }

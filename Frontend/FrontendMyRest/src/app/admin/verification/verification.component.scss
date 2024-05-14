@@ -9,12 +9,14 @@
     background-color: #ab722c;
     width: 900px;
     margin: auto;
-    border-radius: 3%;
+    border-radius: 10px;
     color: white;
     padding: 20px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     -webkit-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     -moz-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    min-height: 400px; 
+    height: auto;
   }
 
  
@@ -30,10 +32,6 @@
   .container-options{
     text-align: center;
   }
-
-.mdc-tab__text-label{
-    
-}
 
 /* Styles for the active tab label */
 .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
