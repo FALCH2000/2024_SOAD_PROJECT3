@@ -48,9 +48,8 @@
               </ng-container>
 
               <!-- Edit button-->
-              <ng-container matColumnDef="End_Time">
-                <th mat-header-cell *matHeaderCellDef> Hora salida </th>
-                <td mat-cell *matCellDef="let element"> <button >Editar Reserva</button></td>
+              <ng-container matColumnDef="Edit">
+               <button >Editar Reserva</button>
               </ng-container>
 
               <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -61,17 +60,10 @@
         <mat-tab label="Reservaciones Futuras">
           <div style="margin: 15px;">
             <div class="future-form">
-              <p style="color: white; font-size: small;">Escribe un id válido de un cliente para comenzar la búsqueda.</p>
-              <mat-form-field class="example-full-width">
-                <mat-label>Id del cliente</mat-label>
-                <input matInput placeholder="Ex. client1">
-              </mat-form-field>
-              <button mat-icon-button color="primary" (click)="searchFutureReservations()">
-                <mat-icon style="color: white;">send</mat-icon>
-              </button>
+              <h3>Reservaciones futuras de: {{username}}</h3>
             </div>
 
-            <table mat-table [dataSource]="all_reservations" class="mat-elevation-z8">
+            <table mat-table [dataSource]="future_reservations" class="mat-elevation-z8">
 
               <!-- Reservation Id Column -->
               <ng-container matColumnDef="Reservation_ID">

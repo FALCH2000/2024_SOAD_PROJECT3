@@ -17,6 +17,7 @@ export class EditReservationComponent implements OnInit{
   future_reservation_flag = false;
 
   all_reservations:any = new Array<any>();
+  future_reservations:any = new Array<any>();
   displayedColumns: string[] = ['Reservation_ID', 'User_ID', 'Number_Of_People', 'Date_Reserved', 'Start_Time','End_Time'];
   username;
 
@@ -49,9 +50,11 @@ export class EditReservationComponent implements OnInit{
     if(!this.username)return;
     console.log(`Buscando reservacion pasada de cliente: ${this.username}`);
     this.clearData();
-    this.verificationService.getReservacionesPasadas(this.username).subscribe((data)=>{
+    this.verificationService.getReservaciones().subscribe((data)=>{
       console.log(data)
-      this.all_reservations = data.data;
+      this.all_reservations = data.data.filter((reservation:any)=>{
+        return reservation.User_ID === this.username && this.isStartDatePast(new Date(reservation.Date_Reserved))
+      });
       this.passed_reservation_flag = true;
     })
   }
@@ -60,9 +63,11 @@ export class EditReservationComponent implements OnInit{
     if(!this.username)return;
     console.log(`Buscando reservacion futura de cliente: ${this.username}`);
     this.clearData();
-    this.verificationService.getReservacionesFuturas(this.username).subscribe((data)=>{
+    this.verificationService.getReservaciones().subscribe((data)=>{
       console.log(data)
-      this.all_reservations = data.data;
+      this.future_reservations = data.data.filter((reservation:any)=>{
+        return reservation.User_ID === this.username && !this.isStartDatePast(new Date(reservation.Date_Reserved))
+      });
       this.future_reservation_flag = true;
     })
   }
