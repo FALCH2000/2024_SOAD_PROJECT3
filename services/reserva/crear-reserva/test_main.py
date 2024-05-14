@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock,call
 from main import crear_reserva_callback
 
 class TestCrearReservaCallback(unittest.TestCase):
@@ -9,7 +9,7 @@ class TestCrearReservaCallback(unittest.TestCase):
     def test_successful_reservation_creation(self, mock_publicar_mensaje, mock_insert_into_db, mock_usar_bd):
         # Mock the message data
         message = MagicMock()
-        message.data.decode.return_value = '{"token": "mocked_token", "data": {"method": "crear-reserva", "number_of_people": 4, "reservation_date": "2022-12-31", "start_time": "18:00:00", "selected_tables": [1, 2, 3]}}'
+        message.data.decode.return_value = '{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluMSIsInBhc3N3b3JkIjoiYWRtaW4xIiwiZXhwIjo5OTk5OTk5OTk5fQ.C4eJAyZrLOLwkVQE2T1vK3u1eMp4fCwjGFDqy1MXt9M", "data": {"method": "crear-reserva", "number_of_people": 4, "reservation_date": "2022-12-31", "start_time": "18:00:00", "selected_tables": [1, 2, 3]}}'
 
         # Mock the token verification
         mock_requests_get = patch('main.requests.get').start()
