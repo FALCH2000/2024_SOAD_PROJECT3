@@ -26,6 +26,11 @@ export class ReservationService {
     return this.http.get<any>(url);
   }
 
+  deleteReservation(reservation:any):Observable<any>{
+    var url = 'https://us-central1-soa-project3.cloudfunctions.net/broker'
+    return this.http.post<any>(url, reservation).pipe(catchError(this.handleError));
+  }
+
   private handleError(error: HttpErrorResponse) {
     if (error.error instanceof ErrorEvent) {
       // A client-side or network error occurred. Handle it accordingly.
