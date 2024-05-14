@@ -91,7 +91,7 @@ def obtener_usuario_callback(username, password, headers):
     if user == []:
         respuesta["status"] = 404
         respuesta["message"] = "Error: Usuario no encontrado."
-        respuesta["token"] = ""
+        
         return (json.dumps(respuesta), respuesta["status"], headers)
 
     print("El usuario si existe. Se procedera a generar el token del usuario: ", username)
@@ -103,6 +103,8 @@ def obtener_usuario_callback(username, password, headers):
     else:
         type = "client"
 
+    print("El tipo de usuario es: ", type)
+
     # Calcular la fecha de expiración como un entero de tiempo Unix en segundos
     exp_timestamp = int((datetime.now(timezone.utc) + timedelta(seconds=1800)).timestamp()) # 1800 segundos = 30 minutos
 
@@ -110,7 +112,6 @@ def obtener_usuario_callback(username, password, headers):
         payload={   
             "username": username,
             "password": password,
-            "type" : type,
             "exp": exp_timestamp
         },
         key=secret_key,
@@ -119,6 +120,7 @@ def obtener_usuario_callback(username, password, headers):
     print("Token generado correctamente")
 
     respuesta["token"] = token
+    respuesta["type"] = type
     respuesta["status"] = 200
     respuesta["message"] = "Usuario encontrado y token generado."
 

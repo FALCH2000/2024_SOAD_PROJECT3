@@ -40,58 +40,90 @@ def obtener_recomendacion_callback(recomendacion, quantity):
     mensaje["data"] = {}
 
     if quantity == 1:
-        query = f"SELECT \
-                    Main_Dish.Name AS Main_Dish,\
-                    Drink.Name AS Drink,\
-                    Dessert.Name AS Dessert\
-                FROM \
-                    Recommendation R\
-                INNER JOIN \
-                    Food Main_Dish ON R.Main_Dish_ID = Main_Dish.ID\
-                INNER JOIN \
-                    Food Drink ON R.Drink_ID = Drink.ID\
-                INNER JOIN \
-                    Food Dessert ON R.Dessert_ID = Dessert.ID\
-                WHERE \
-                    R.Main_Dish_ID = {recomendacion[0]} OR R.Drink_ID = {recomendacion[0]} OR R.Dessert_ID = {recomendacion[0]};"
-        result = usar_bd(query)
-        if len(result) == 0:
-            mensaje["data"] = "No hay recomendaciones disponibles"
-        else:
-            for elem in result:
-                mensaje["data"]["Main_Dish"] = elem[0]
-                mensaje["data"]["Drink"] = elem[1]
-                mensaje["data"]["Dessert"] = elem[2]
-    else:
-        query = f"SELECT \
-                    Main_Dish.Name AS Main_Dish,\
-                    Drink.Name AS Drink,\
-                    Dessert.Name AS Dessert\
-                FROM \
-                    Recommendation R\
-                INNER JOIN \
-                    Food Main_Dish ON R.Main_Dish_ID = Main_Dish.ID\
-                INNER JOIN \
-                    Food Drink ON R.Drink_ID = Drink.ID\
-                INNER JOIN \
-                    Food Dessert ON R.Dessert_ID = Dessert.ID\
-                WHERE \
-                    (R.Main_Dish_ID = {recomendacion[0]} AND R.Drink_ID = {recomendacion[1]}) OR\
-                    (R.Main_Dish_ID = {recomendacion[1]} AND R.Drink_ID = {recomendacion[0]}) OR\
-                    (R.Main_Dish_ID = {recomendacion[0]} AND R.Dessert_ID = {recomendacion[1]}) OR\
-                    (R.Main_Dish_ID = {recomendacion[1]} AND R.Dessert_ID = {recomendacion[0]}) OR\
-                    (R.Drink_ID = {recomendacion[0]} AND R.Dessert_ID = {recomendacion[1]}) OR\
-                    (R.Drink_ID = {recomendacion[1]} AND R.Dessert_ID = {recomendacion[0]});"
+        print("One dish")
 
-        result = usar_bd(query)
-        # R.Dessert_ID = {recomendacion["data"]['dish2']['ID']}
-        if len(result) == 0:
-            mensaje["data"] = "No hay recomendaciones disponibles"
-        else:
-            for elem in result:
-                mensaje["data"]["Main_Dish"] = elem[0]
-                mensaje["data"]["Drink"] = elem[1]
-                mensaje["data"]["Dessert"] = elem[2]
+        name_dish = usar_bd(f"SELECT Name FROM Food WHERE ID='{recomendacion[0]}';")
+        print("Name_dish: ", name_dish)
+
+        if len(name_dish) == 0:
+            mensaje["data"] = "No existe esa comida"
+
+        row_recommendation = usar_bd(f"SELECT * FROM Recommendation \
+                                     WHERE Main_Dish_ID = {recomendacion[0]} \
+                                     OR Drink_ID = {recomendacion[0]} \
+                                     OR Dessert_ID = {recomendacion[0]};")
+        print("row_recommendation", row_recommendation)
+
+        main_dish_name = usar_bd(f"SELECT Name FROM Food WHERE ID= {row_recommendation[0][1]}")
+        print("main_dish_name", main_dish_name[0][0])
+
+        drink_name = usar_bd(f"SELECT Name FROM Food WHERE ID= {row_recommendation[0][2]}")
+
+        print("drink_name: ", drink_name[0][0])
+
+        dessert = usar_bd(f"SELECT Name FROM Food WHERE ID= {row_recommendation[0][3]}")
+
+        print("dessert_name:", dessert[0][0])
+
+
+        mensaje["data"]["Main_Dish"] = main_dish_name[0][0]
+        mensaje["data"]["Drink"] = drink_name[0][0]
+        mensaje["data"]["Dessert"] = dessert[0][0]
+        mensaje["status"] = 200
+        mensaje["message"] = "Recomendacion encontrada"
+
+    else:
+        print("Two dishes")
+        
+        name_dish1 = usar_bd(f"SELECT Name FROM Food WHERE ID='{recomendacion[0]}';")
+        name_dish2 = usar_bd(f"SELECT Name FROM Food WHERE ID= {recomendacion[1]}")
+        print("Name_dish1: ", name_dish1[0][0])
+        print("Name_dish2: ", name_dish2[0][0])
+
+        if name_dish1 == "" or name_dish2 == "":
+            mensaje["status"] = 404
+            mensaje['message'] = "No existe alguno de los dos platillos"
+            return json.dumps(mensaje)
+
+
+        row1 = usar_bd(f"SELECT * FROM Recommendation \
+                                     WHERE Main_Dish_ID = {recomendacion[0]} \
+                                     OR Drink_ID = {recomendacion[0]} \
+                                     OR Dessert_ID = {recomendacion[0]};")
+        
+        row2 = usar_bd(f"SELECT * FROM Recommendation \
+                                     WHERE Main_Dish_ID = {recomendacion[1]} \
+                                     OR Drink_ID = {recomendacion[1]} \
+                                     OR Dessert_ID = {recomendacion[1]};")
+        
+        print("row1", row1)
+        print("row2: ", row2)
+
+        if row1 != row2:
+            print("No hay recomendacion para esa combinacion de comidas")
+            mensaje["status"] = 404
+            mensaje["message"] = "No hay recomendacion para esa combinacion de comidas"
+            # Convertir el mensaje a JSON
+            mensaje_json = json.dumps(mensaje)
+            return mensaje_json
+
+        main_dish_name = usar_bd(f"SELECT Name FROM Food WHERE ID= {row1[0][1]}")
+        print("main_dish_name", main_dish_name[0][0])
+
+        drink_name = usar_bd(f"SELECT Name FROM Food WHERE ID= {row1[0][2]}")
+
+        print("drink_name: ", drink_name[0][0])
+
+        dessert = usar_bd(f"SELECT Name FROM Food WHERE ID= {row1[0][3]}")
+
+        print("dessert_name:", dessert[0][0])
+
+
+        mensaje["data"]["Main_Dish"] = main_dish_name[0][0]
+        mensaje["data"]["Drink"] = drink_name[0][0]
+        mensaje["data"]["Dessert"] = dessert[0][0]
+        mensaje["status"] = 200
+        mensaje["message"] = "Recomendacion encontrada"
     
     # Convertir el mensaje a JSON
     mensaje_json = json.dumps(mensaje)
