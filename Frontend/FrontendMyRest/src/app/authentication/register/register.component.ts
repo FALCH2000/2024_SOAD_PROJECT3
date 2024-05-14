@@ -99,10 +99,8 @@ export class RegisterComponent {
 */
       const observer: Observer<any> = {
         next: (data: any) => {
-          if (data.status === 200) {
-            // Aquí puedes realizar acciones adicionales si la solicitud es exitosa
-          }
-          this.router.navigate(['authentication/login']);
+          alert("Usuario creado!")
+          this.router.navigate(['/login']);
           console.log(data);
         },
         error: (error: any) => {
