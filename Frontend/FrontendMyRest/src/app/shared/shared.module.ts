@@ -8,11 +8,11 @@ import { MatDialogModule } from '@angular/material/dialog';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatNativeDateModule} from '@angular/material/core';
-import { NgxMatDatetimePickerModule, NgxMatTimepickerModule } from '@angular-material-components/datetime-picker'
 import {MatIconModule} from '@angular/material/icon';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTableModule} from '@angular/material/table';
+import {MatSelectModule} from '@angular/material/select';
 
 
 @NgModule({
@@ -27,13 +27,12 @@ import {MatTableModule} from '@angular/material/table';
     MatDatepickerModule,
     MatFormFieldModule,
     MatNativeDateModule,
-    NgxMatDatetimePickerModule,
-    NgxMatTimepickerModule,
     MatIconModule,
     ReactiveFormsModule,
     MatCheckboxModule,
     MatTabsModule,
     MatTableModule,
+    MatSelectModule,
   ],
   exports: [
     CommonModule,
@@ -44,13 +43,12 @@ import {MatTableModule} from '@angular/material/table';
     MatDatepickerModule,
     MatFormFieldModule,
     MatNativeDateModule,
-    NgxMatDatetimePickerModule,
-    NgxMatTimepickerModule,
     MatIconModule,
     ReactiveFormsModule,
     MatCheckboxModule,
     MatTabsModule,
     MatTableModule,
+    MatSelectModule,
   ]
 })
 export class SharedModule { }
