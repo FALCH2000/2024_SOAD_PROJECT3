@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+google-cloud-pubsub = ">=2.6.1"
+sqlalchemy = "==1.4.*"
+cloud-sql-python-connector = "==0.9.*"
+sqlalchemy-pytds = "==0.3.5"
+python-tds = "==1.15.0"
+pytz = "==2024.1"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"

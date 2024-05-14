@@ -1,0 +1,14 @@
+{
+    "dish1": {
+        "ID": "1",
+        "Name": "Pizza Margarita"
+    },
+    "dish2":{
+        "ID": "2",
+        "Name": "Tiramisu"
+    },
+    "dish3":{
+        "ID": "3",
+        "Name": "Mojito"
+    }
+}

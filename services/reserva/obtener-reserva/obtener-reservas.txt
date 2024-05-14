@@ -1,0 +1,11 @@
+Para obtener reservas pasadas de un cliente:
+https://us-central1-soa-project3.cloudfunctions.net/obtener-reserva/?time=pasadas&token=
+Para obtener reservas futuras de un cliente:
+https://us-central1-soa-project3.cloudfunctions.net/obtener-reserva/?time=futuras&token=
+
+Para obtener una reserva puntual (admin)
+https://us-central1-soa-project3.cloudfunctions.net/obtener-reserva/?reservation_id=3
+
+
+Para obtener todas las reservas futuras (admin)
+https://us-central1-soa-project3.cloudfunctions.net/obtener-reserva/?time=all

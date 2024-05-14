@@ -1,0 +1,56 @@
+La url:
+https://us-central1-groovy-rope-416616.cloudfunctions.net/obtener-menu
+
+
+# MENSAJE QUE RECIBIRA EL FRONTEND DE PARTE DE ESTA FUNCION:
+
+{
+    "data":{
+        "types": [
+            {
+                "Food_Type_ID":1,
+                "Name": "MainCourse"
+            },
+            {
+                "Food_Type_ID":1,
+                "Name": "MainCourse"
+            },
+            {
+                "Food_Type_ID":1,
+                "Name": "MainCourse"
+            }
+        ],
+        "Dessert":[
+            {
+                "Food_ID" : #,
+                "Name" : "nombre comida 1"
+            },
+            {
+                "Food_ID" : #,
+                "Name" : "nombre comida 2"
+            }
+        ],
+        "MainCourse":[
+            {
+                "Food_ID" : #,
+                "Name" : "nombre comida 1"
+            },
+            {
+                "Food_ID" : #,
+                "Name" : "nombre comida 2"
+            }
+        ],
+        "Drink":[
+            {
+                "Food_ID" : #,
+                "Name" : "nombre comida 1"
+            },
+            {
+                "Food_ID" : #,
+                "Name" : "nombre comida 2"
+            }
+        ]
+    },
+    "status":200,
+    "mesagge";"sahg"
+}

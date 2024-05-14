@@ -1,0 +1,13 @@
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNsaWVudDEiLCJwYXNzd29yZCI6ImNsaWVudDEiLCJleHAiOjE3MTU0MDY1NDB9.hsJ1_CvPYwDkp15zqx5zJ3EmlhKHnMJkO_-wwbI4SrE",
+    "data": {
+        "method": "crear-reserva",
+        "number_of_people": "7",
+        "reservation_date": "2050-05-04",
+        "start_time": "13:00:00",
+        "selected_tables": [
+            1,
+            2
+        ]
+    }
+}
