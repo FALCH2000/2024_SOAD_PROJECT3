@@ -28,7 +28,7 @@ export class LoginComponent {
         if (data.status === 200) {
           // Aquí puedes realizar acciones adicionales si la solicitud es exitosa
         }
-        localStorage.setItem('token',data.type)
+        localStorage.setItem('token',data.token)
         if(data.type === "admin"){
           this.router.navigate(['admin/admin-menu']);
         }else{
