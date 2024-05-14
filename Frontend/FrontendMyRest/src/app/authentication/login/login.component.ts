@@ -28,8 +28,13 @@ export class LoginComponent {
         if (data.status === 200) {
           // Aquí puedes realizar acciones adicionales si la solicitud es exitosa
         }
-        this.router.navigate(['user/user-menu']);
-        console.log(data);
+        localStorage.setItem('token',data.type)
+        if(data.type === "admin"){
+          this.router.navigate(['admin/admin-menu']);
+        }else{
+          this.router.navigate(['user/user-menu']);
+
+        }
       },
       error: (error: any) => {
         console.error('Error occurred:', error);
