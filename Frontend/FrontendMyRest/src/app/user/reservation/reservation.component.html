@@ -31,12 +31,12 @@
             </div>
 
             <mat-form-field class="people-number">
-                <input matInput type="number" placeholder="Espacios">
+                <input matInput type="number" placeholder="Espacios" [(ngModel)]="numberOfPeople">
               </mat-form-field>
 
             <!-- Search Button -->
             <div class="button-container">
-                <button mat-icon-button color="primary" (click)="searchTable()">
+                <button mat-icon-button color="primary" (click)="verifyUser()">
                     <mat-icon style="color: white;">search</mat-icon>
                   </button>
                 <div style="height: 20px;"></div>
