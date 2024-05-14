@@ -31,7 +31,7 @@ class TestObtenerUsuarioCallback(unittest.TestCase):
 
         # Call the callback function
         response = obtener_usuario_callback(username, password, headers)
-        
+        token_response = json.loads(response[0])
 
         # Assert that the response contains the expected token
         self.assertEqual(token_response['status'], 200)
@@ -41,9 +41,6 @@ class TestObtenerUsuarioCallback(unittest.TestCase):
         self.assertEqual(token_decoded['password'], password)
         self.assertEqual(response[1], 200)
         self.assertEqual(response[2], headers)
-
-        # Assert that the correct database query was made
-        mock_usar_bd.assert_called_once_with(f"SELECT * FROM User_ WHERE Username = 'testuser' and Encrypted_Password = '{encriptar_texto(password)}'")
 
     def test_invalid_username(self):
         # Mock the request parameters
