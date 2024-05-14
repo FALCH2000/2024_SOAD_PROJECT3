@@ -1,1 +1,120 @@
-<p>edit-reservation works!</p>
+
+<div class="container-principal">
+  <div class="container d-flex align-items-center justify-content-center">
+    <div class="container-sm align-items-center justify-content-center">
+      <mat-tab-group (selectedTabChange)="onTabChange($event)">
+        <mat-tab label="Reservaciones Pasadas">
+          <div style="margin: 15px;">
+            <div class="past-form">
+             <h3>Reservaciones pasadas de: {{username}}</h3>
+            </div>
+
+            <table mat-table [dataSource]="all_reservations" class="mat-elevation-z8">
+
+              <!-- Reservation Id Column -->
+              <ng-container matColumnDef="Reservation_ID">
+                <th mat-header-cell *matHeaderCellDef> Id de reservación </th>
+                <td mat-cell *matCellDef="let element"> {{element.Reservation_ID}} </td>
+              </ng-container>
+
+              <!-- User ID Column -->
+              <ng-container matColumnDef="User_ID">
+                <th mat-header-cell *matHeaderCellDef> Id de usuario </th>
+                <td mat-cell *matCellDef="let element"> {{element.User_ID}} </td>
+              </ng-container>
+
+              <!-- Number of people Column -->
+              <ng-container matColumnDef="Number_Of_People">
+                <th mat-header-cell *matHeaderCellDef> Espacios </th>
+                <td mat-cell *matCellDef="let element"> {{element.Number_Of_People}} </td>
+              </ng-container>
+
+              <!-- Date reserved Column -->
+              <ng-container matColumnDef="Date_Reserved">
+                <th mat-header-cell *matHeaderCellDef> Fecha </th>
+                <td mat-cell *matCellDef="let element"> {{element.Date_Reserved}} </td>
+              </ng-container>
+
+              <!-- Start time Column -->
+              <ng-container matColumnDef="Start_Time">
+                <th mat-header-cell *matHeaderCellDef> Hora entrada </th>
+                <td mat-cell *matCellDef="let element"> {{element.Start_Time}} </td>
+              </ng-container>
+
+              <!-- End time Column -->
+              <ng-container matColumnDef="End_Time">
+                <th mat-header-cell *matHeaderCellDef> Hora salida </th>
+                <td mat-cell *matCellDef="let element"> {{element.End_Time}} </td>
+              </ng-container>
+
+              <!-- Edit button-->
+              <ng-container matColumnDef="End_Time">
+                <th mat-header-cell *matHeaderCellDef> Hora salida </th>
+                <td mat-cell *matCellDef="let element"> <button >Editar Reserva</button></td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </div>
+        </mat-tab>
+        <mat-tab label="Reservaciones Futuras">
+          <div style="margin: 15px;">
+            <div class="future-form">
+              <p style="color: white; font-size: small;">Escribe un id válido de un cliente para comenzar la búsqueda.</p>
+              <mat-form-field class="example-full-width">
+                <mat-label>Id del cliente</mat-label>
+                <input matInput placeholder="Ex. client1">
+              </mat-form-field>
+              <button mat-icon-button color="primary" (click)="searchFutureReservations()">
+                <mat-icon style="color: white;">send</mat-icon>
+              </button>
+            </div>
+
+            <table mat-table [dataSource]="all_reservations" class="mat-elevation-z8">
+
+              <!-- Reservation Id Column -->
+              <ng-container matColumnDef="Reservation_ID">
+                <th mat-header-cell *matHeaderCellDef> Id de reservación </th>
+                <td mat-cell *matCellDef="let element"> {{element.Reservation_ID}} </td>
+              </ng-container>
+
+              <!-- User ID Column -->
+              <ng-container matColumnDef="User_ID">
+                <th mat-header-cell *matHeaderCellDef> Id de usuario </th>
+                <td mat-cell *matCellDef="let element"> {{element.User_ID}} </td>
+              </ng-container>
+
+              <!-- Number of people Column -->
+              <ng-container matColumnDef="Number_Of_People">
+                <th mat-header-cell *matHeaderCellDef> Espacios </th>
+                <td mat-cell *matCellDef="let element"> {{element.Number_Of_People}} </td>
+              </ng-container>
+
+              <!-- Date reserved Column -->
+              <ng-container matColumnDef="Date_Reserved">
+                <th mat-header-cell *matHeaderCellDef> Fecha </th>
+                <td mat-cell *matCellDef="let element"> {{element.Date_Reserved}} </td>
+              </ng-container>
+
+              <!-- Start time Column -->
+              <ng-container matColumnDef="Start_Time">
+                <th mat-header-cell *matHeaderCellDef> Hora entrada </th>
+                <td mat-cell *matCellDef="let element"> {{element.Start_Time}} </td>
+              </ng-container>
+
+              <!-- End time Column -->
+              <ng-container matColumnDef="End_Time">
+                <th mat-header-cell *matHeaderCellDef> Hora salida </th>
+                <td mat-cell *matCellDef="let element"> {{element.End_Time}} </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </div>
+</div>

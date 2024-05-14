@@ -23,8 +23,7 @@ export class EditItemService {
       token:localStorage.getItem('token'),
       data:schedule
     }
-    console.log(json)
-    return this.http.post<any>(url, json).pipe(catchError(this.handleError));
+    return this.http.post<any>(url, schedule).pipe(catchError(this.handleError));
   }
 
   private handleError(error: HttpErrorResponse) {
