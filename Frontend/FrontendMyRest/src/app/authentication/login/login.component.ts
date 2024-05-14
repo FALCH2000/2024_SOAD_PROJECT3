@@ -22,11 +22,11 @@ export class LoginComponent {
 
   submit(): void {
     console.log("user name is " + this.username)
+    localStorage.setItem('username',this.username)
 
     const observer: Observer<any> = {
       next: (data: any) => {
         if (data.status === 200) {
-          // Aquí puedes realizar acciones adicionales si la solicitud es exitosa
         }
         localStorage.setItem('token',data.token)
         if(data.type === "admin"){
@@ -52,6 +52,6 @@ export class LoginComponent {
   clear(){
     this.username ="";
     this.password = "";
-    
+
   }
 }
