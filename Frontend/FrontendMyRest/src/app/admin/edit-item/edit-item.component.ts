@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { EditItemService } from '../services/edit-item.service';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -9,7 +9,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   templateUrl: './edit-item.component.html',
   styleUrls: ['./edit-item.component.scss']
 })
-export class EditItemComponent {
+export class EditItemComponent implements OnInit{
   user_reservation_id:string|null="";
   reservationForm: FormGroup;
 
@@ -30,17 +30,17 @@ export class EditItemComponent {
       endTime: [{ value: '', disabled: false }, Validators.required],
       numberOfPeople: [{ value: '', disabled: false }, Validators.required]
     });
+    this.reservationForm.get('username')?.disable();
 
   }
-  
+
   ngOnInit(){
     this.user_reservation_id=localStorage.getItem('reservation_id');
-    
-
     this.getItem(this.user_reservation_id)
   }
 
   getItem(reservation_id:string|null){
+    this.username = "USUARIO"
     console.log(reservation_id)
     if(reservation_id=== null){
       alert("Hubo un error obteniendo los datos de esta reserva.")
@@ -51,18 +51,18 @@ export class EditItemComponent {
         this.username = data.data.Username
         this.dateReserved = data.data.Date_Reserved
         this.end_time=data.data.End_Time
-        this.start_time = data.data.Start_Time        
+        this.start_time = data.data.Start_Time
         this.numberOfPeople = data.data.Number_Of_People
     });
-  
+
     }
   }
 
   updateValue(){
-    
-   
+
+
   }
   onSubmit():void{
-  
+
   }
 }
