@@ -25,19 +25,20 @@ export class VerificationComponent {
 
   ngOnInit(){
     localStorage.removeItem('reservation_id');
+    this.all_reservations=true;
+    this.onTabChange()
   }
 
-  onTabChange(event: MatTabChangeEvent) {
-    console.log('Tab activo:', event.index);
+  onTabChange() {
     this.clearData();
     this.clientId = "";
-    if(event.index === 2){
-      this.verificationService.getReservaciones().subscribe((data)=>{
-          console.log(data)
-          this.all_reservations = data.data;
-          this.all_reservations_flag = true;
-      })
-    }
+    
+    this.verificationService.getReservaciones().subscribe((data)=>{
+      console.log(data)
+      this.all_reservations = data.data;
+      this.all_reservations_flag = true;
+  })
+
   }
 
   searchPastReservations(){
