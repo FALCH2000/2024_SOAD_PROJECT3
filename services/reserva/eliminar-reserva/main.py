@@ -61,7 +61,7 @@ def eliminar_reserva_callback(message):
     respuesta = {}
     #verificar el token
     try:
-        token_decoded  = jwt.decode(jwt=message.args.get('token'), key=secret_key)
+        token_decoded  = jwt.decode(jwt=reservaporborrar['token'], key=secret_key, algorithms=["HS256"])
     except jwt.ExpiredSignatureError:
         respuesta["status"] = 401
         respuesta["message"] = "Error: EL TOKEN esta expirado!"
