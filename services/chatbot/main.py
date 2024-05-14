@@ -41,6 +41,26 @@ def generateAnswer(kind):
 
 @functions_framework.http
 def chatbot(request):
+    # Set CORS headers for the preflight request
+    if request.method == "OPTIONS":
+        # Allows GET requests from any origin with the Content-Type
+        # header and caches preflight response for an 3600s
+        headers = {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Max-Age": "3600",
+        }
+
+        return ("", 204, headers)
+    
+    # Set CORS headers for main requests
+    headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": "true",
+    }
+
+
     request_args = request.args
     path = (request.path)
 
@@ -59,21 +79,21 @@ def chatbot(request):
                     "data": generateAnswer(kind)
                 }
             
-                return json.dumps(answer, ensure_ascii=False)
+                return (json.dumps(answer, ensure_ascii=False), 200, headers)
             else:
                 answer = {
                     "status_code": 400,
                     "message": "Bad Request",
                     "data": "Texto debe tener al menos 5 caracteres"
                 }
-                return json.dumps(answer, ensure_ascii=False)
+                return (json.dumps(answer, ensure_ascii=False), 400, headers)
         else:
             answer = {
                 "status_code": 400,
                 "message": "Bad Request",
                 "data": "Texto no encontrado"
             }
-            return json.dumps(answer, ensure_ascii=False)
+            return (json.dumps(answer, ensure_ascii=False), 400, headers)
     else:
         answer = {
             "status_code": 404,
@@ -81,4 +101,4 @@ def chatbot(request):
             "data": "Ruta no encontrada"
         }
 
-        return json.dumps(answer, ensure_ascii=False)
+        return (json.dumps(answer, ensure_ascii=False), 404, headers)

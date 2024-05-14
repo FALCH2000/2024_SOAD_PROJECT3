@@ -1,7 +1,7 @@
 import requests
 import json
 
-url = "https://us-central1-soa-project3.cloudfunctions.net/feedback-chatbot"
+url = "https://us-central1-soa-project3.cloudfunctions.net/feedback-chatbot/Iamsohappy"
 
 data = {
     "texto": "I'm so happy!"

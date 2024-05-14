@@ -13,6 +13,7 @@ import jwt
 def getconn():
     connector = Connector()
     conn = connector.connect(
+        
         "soa-project3:us-central1:database-project3",
         "pytds",
         user="sqlserver",
@@ -60,51 +61,61 @@ def encriptar_texto(texto):
     hash_str_hexadecimal = str(hash_obj.hexdigest())
     
     return hash_str_hexadecimal
+
 secret_key="6af00dfe63f6495195a3341ef6406c2c" 
-def token_invalido(token):
-    try:
-        token_decoded  = jwt.decode(jwt=token, key=secret_key)
-    except jwt.ExpiredSignatureError:
-        return False
-
-
-
-def verificar_usuario_callback(request):
+def verificar_usuario_callback(token, headers):
     respuesta = {}
-    #verificar el token
     try:
-        token_decoded  = jwt.decode(jwt=request.args.get('token'), key=secret_key)
-    except jwt.ExpiredSignatureError:
-        respuesta["status"] = 401
-        respuesta["message"] = "Error: EL TOKEN esta expirado!"
-        return json.dumps(respuesta, ensure_ascii=False)
-    except jwt.exceptions.InvalidTokenError as e:
-        respuesta["status"] = 401
-        respuesta["message"] = "Error: EL TOKEN no es valido!"
-        return json.dumps(respuesta, ensure_ascii=False)
-    except Exception as e:
-        respuesta["status"] = 500
-        respuesta["message"] = "Error: procesando el token"
-        return json.dumps(respuesta, ensure_ascii=False)
-    
-    # verificar datos del usuario
-    username = token_decoded['username']
-    password = encriptar_texto(token_decoded['password'])
-    if username == "" or password == "":
-        respuesta["status"] = 400
-        respuesta["message"] = "Error: No se ha ingresado un username o password."
-        return json.dumps(respuesta, ensure_ascii=False)
-    
-    # Verificar contrasena del usuario
-    user = usar_bd(F"SELECT * FROM User_ WHERE Username = '{username}' AND Encrypted_Password = '{password}'")
-    if user == []:
-        respuesta["status"] = 404
-        respuesta["message"] = "Error: Usuario no existe o la contrasena es incorrecta."
-        return json.dumps(respuesta, ensure_ascii=False)
+        print("Verificando token...")
+            #verificar el token
+        try:
+            token_decoded  = jwt.decode(jwt=token, key=secret_key, algorithms=["HS256"])
+        except jwt.ExpiredSignatureError as e:
+            print("Error 1: ", e)
+            respuesta["status"] = 401
+            respuesta["message"] = "Error: EL TOKEN esta expirado!"
+            return (json.dumps(respuesta, ensure_ascii=False), 401, headers)
+        
+        except jwt.exceptions.InvalidTokenError as e:
+            print(f"Error 2: {e}")
+            respuesta["status"] = 401
+            respuesta["message"] = "Error: EL TOKEN no es valido!"
+            return (json.dumps(respuesta, ensure_ascii=False), 401, headers)
+        
+        except Exception as e:
+            print(f"Error 3 : {e}")
+            respuesta["status"] = 500
+            respuesta["message"] = "Error: procesando el token"
+            return (json.dumps(respuesta, ensure_ascii=False), 500, headers)
+        
+        # verificar datos del usuario
+        username = token_decoded['username']
+        password = encriptar_texto(token_decoded['password'])
+        if username == "" or password == "":
+            respuesta["status"] = 400
+            respuesta["message"] = "Error: No se ha ingresado un username o password."
+            return (json.dumps(respuesta, ensure_ascii=False), 400, headers)
+        
+        print(f"username: {username}, password: {password}")
 
-    respuesta["status"] = 200
-    respuesta["message"] = "Usuario encontrado."
-    return json.dumps(respuesta)
+        # Verificar contrasena del usuario
+        user = usar_bd(F"SELECT * FROM User_ WHERE Username = '{username}' AND Encrypted_Password = '{password}'")
+        if user == []:
+            respuesta["status"] = 404
+            respuesta["message"] = "Error: Usuario no existe o la contrasena es incorrecta."
+            return json.dumps(respuesta, ensure_ascii=False)
+        
+        print(f"Usuario encontrado: {user}")
+        respuesta["status"] = 200
+        respuesta["message"] = "Usuario encontrado."
+        return (json.dumps(respuesta), 200, headers)
+    
+    except Exception as e:
+
+        print(f"Error: {e}")
+        respuesta["status"] = 500
+        respuesta["message"] = f"Error: {e}"
+        return (json.dumps(respuesta), 500, headers)
 
 def verificar_usuario(request):
     # Set CORS headers for the preflight request
@@ -122,6 +133,8 @@ def verificar_usuario(request):
 
     request_json = request.get_json(silent=True)
     request_args = request.args
+    print("REQUEST ARGS: ", request_args)
+    print("TOKEN: ", request_args['token'])
     path = (request.path)
     respuesta = {}
 
@@ -132,7 +145,7 @@ def verificar_usuario(request):
     }
     #and request_json is None and not request_args
     if path == "/" and request.method == 'GET':
-        return (verificar_usuario_callback(request_args('token')),200,headers)
+        return (verificar_usuario_callback(request_args['token'], headers))
     else:
         respuesta["status"] = 404
         respuesta["message"] = "Error: Método no válido."

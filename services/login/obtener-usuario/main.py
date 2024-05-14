@@ -81,11 +81,13 @@ def obtener_usuario_callback(username, password, headers):
         respuesta["message"] = "Error: No se ha ingresado un username."
         return (json.dumps(respuesta), respuesta["status"], headers)
     
+    print("Username ingresado correctamente")
+
     encrypted_password = encriptar_texto(password)
 
     # Obtener datos del usuario
     user = usar_bd(F"SELECT * FROM User_ WHERE Username = '{username}' and Encrypted_Password = '{encrypted_password}'")
-    
+
     if user == []:
         respuesta["status"] = 404
         respuesta["message"] = "Error: Usuario no encontrado."
@@ -94,6 +96,13 @@ def obtener_usuario_callback(username, password, headers):
 
     print("El usuario si existe. Se procedera a generar el token del usuario: ", username)
 
+    type = usar_bd(f"SELECT Type_ID FROM User_Type_Association WHERE Username='{username}'")
+
+    if type[0] == 1:
+        type = "admin"
+    else:
+        type = "client"
+
     # Calcular la fecha de expiración como un entero de tiempo Unix en segundos
     exp_timestamp = int((datetime.now(timezone.utc) + timedelta(seconds=1800)).timestamp()) # 1800 segundos = 30 minutos
 
@@ -101,6 +110,7 @@ def obtener_usuario_callback(username, password, headers):
         payload={   
             "username": username,
             "password": password,
+            "type" : type,
             "exp": exp_timestamp
         },
         key=secret_key,
